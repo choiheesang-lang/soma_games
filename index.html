@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>소마챔피언즈 디자인 시스템 · v0.3</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
+<style>
+  :root{
+    --ink:#222824;
+    --orange:#F19A2F;
+    --green:#69BE00;
+    --paper:#F4F5F1;
+    --card:#FFFFFF;
+    --line:rgba(34,40,36,.10);
+    --line-strong:rgba(34,40,36,.18);
+    --muted:rgba(34,40,36,.56);
+    --muted-2:rgba(34,40,36,.40);
+    --r1:8px; --r2:16px; --r3:24px;
+    --font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--font);
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    letter-spacing:-.01em;
+  }
+  a{color:inherit}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+
+  /* ── shape mark ─────────────────────────────────────── */
+  .mark{display:inline-flex;align-items:center;gap:5px;vertical-align:middle}
+  .mark .tri{width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:12px solid var(--green)}
+  .mark .sq{width:12px;height:12px;background:var(--orange);border-radius:2px}
+  .mark .ci{width:12px;height:12px;background:#C8CCC6;border-radius:50%}
+
+  /* ── header ─────────────────────────────────────────── */
+  header{position:sticky;top:0;z-index:50;background:rgba(244,245,241,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .bar{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:15px}
+  .ver{font-size:12px;font-weight:600;color:var(--muted);border:1px solid var(--line-strong);padding:3px 10px;border-radius:999px}
+  .nav{display:flex;gap:22px;font-size:13.5px;font-weight:500;color:var(--muted)}
+  .nav a{text-decoration:none;transition:color .15s}
+  .nav a:hover{color:var(--ink)}
+  @media(max-width:760px){.nav{display:none}}
+
+  /* ── hero ───────────────────────────────────────────── */
+  .hero{padding:84px 0 64px;position:relative;overflow:hidden}
+  .hero-shapes{position:absolute;right:-40px;top:40px;opacity:.9;pointer-events:none}
+  .eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:22px}
+  h1.title{font-size:clamp(34px,6vw,60px);font-weight:800;line-height:1.1;letter-spacing:-.03em}
+  h1.title b{color:var(--orange)}
+  h1.title i{color:var(--green);font-style:normal}
+  .lead{margin-top:22px;font-size:17px;color:var(--muted);max-width:560px;line-height:1.7}
+  .hero-cta{margin-top:30px;display:flex;flex-wrap:wrap;gap:12px}
+  .btn{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 20px;border-radius:var(--r1);font-size:14px;font-weight:600;text-decoration:none;border:1px solid transparent;transition:transform .12s,box-shadow .12s,background .15s}
+  .btn:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+  .btn-dark{background:var(--ink);color:#fff}
+  .btn-dark:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(34,40,36,.18)}
+  .btn-ghost{background:transparent;color:var(--ink);border-color:var(--line-strong)}
+  .btn-ghost:hover{background:#fff}
+
+  /* ── section scaffolding ────────────────────────────── */
+  section.block{padding:56px 0;border-top:1px solid var(--line)}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:6px}
+  .sec-no{font-size:13px;font-weight:700;color:var(--muted-2);font-variant-numeric:tabular-nums}
+  h2{font-size:clamp(22px,3.4vw,30px);font-weight:800;letter-spacing:-.02em}
+  .sec-desc{color:var(--muted);font-size:15px;margin:10px 0 30px;max-width:640px}
+
+  /* ── file cards ─────────────────────────────────────── */
+  .files{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  @media(max-width:680px){.files{grid-template-columns:1fr}}
+  .file{background:var(--card);border:1px solid var(--line);border-radius:var(--r2);padding:22px;transition:transform .14s,box-shadow .14s,border-color .14s}
+  .file:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(34,40,36,.08);border-color:var(--line-strong)}
+  .file.span2{grid-column:1 / -1}
+  .file .fname{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;font-weight:700;display:flex;align-items:center;gap:10px}
+  .chip{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px}
+  .chip-core{background:rgba(34,40,36,.08);color:var(--ink)}
+  .chip-ai{background:rgba(80,180,187,.16);color:#2f7d83}
+  .chip-soma{background:rgba(105,190,0,.16);color:#3f7a00}
+  .chip-css{background:rgba(241,154,47,.16);color:#9a5e10}
+  .file p{margin-top:12px;font-size:14px;color:var(--muted);line-height:1.65}
+
+  /* ── principle / freedom ────────────────────────────── */
+  .grid-2{display:grid;grid-template-columns:1fr 1.3fr;gap:18px;align-items:start}
+  @media(max-width:760px){.grid-2{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r2);padding:24px}
+  .panel h3{font-size:16px;font-weight:800;margin-bottom:12px}
+  .panel .vs{font-size:14px;color:var(--muted);line-height:1.7}
+  .emoji-no{display:flex;gap:14px;align-items:center;margin-top:16px}
+  .emoji-no .x{font-size:13px;font-weight:700;color:var(--status-danger,#D23040)}
+  .badge-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  table th,table td{text-align:left;padding:12px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  table th{font-size:12.5px;font-weight:700;color:var(--muted);background:rgba(34,40,36,.02)}
+  .free{font-weight:800;font-variant-numeric:tabular-nums}
+  .free.f0{color:var(--ink)}
+  .free.f50{color:var(--green)}
+  .free.f100{color:var(--orange)}
+
+  /* ── figma links ────────────────────────────────────── */
+  .figma{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:680px){.figma{grid-template-columns:1fr}}
+  .figcard{display:block;background:var(--ink);color:#fff;border-radius:var(--r2);padding:24px;text-decoration:none;transition:transform .14s,box-shadow .14s}
+  .figcard:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(34,40,36,.22)}
+  .figcard .num{font-size:12px;font-weight:700;color:rgba(255,255,255,.5)}
+  .figcard .ttl{font-size:18px;font-weight:800;margin:8px 0 6px;display:flex;align-items:center;gap:8px}
+  .figcard .sub{font-size:13.5px;color:rgba(255,255,255,.66);line-height:1.6}
+  .figcard .go{margin-top:16px;font-size:13px;font-weight:700;color:var(--orange);display:inline-flex;align-items:center;gap:6px}
+  .figcard:focus-visible{outline:3px solid var(--orange);outline-offset:3px}
+
+  /* ── flow ───────────────────────────────────────────── */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px}
+  .step{flex:1;min-width:120px;background:var(--card);border:1px solid var(--line);border-radius:var(--r1);padding:16px 14px}
+  .step .s-no{font-size:11px;font-weight:700;color:var(--muted-2)}
+  .step .s-name{font-size:14.5px;font-weight:700;margin-top:4px}
+  .step .s-note{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5}
+  .arrow{display:flex;align-items:center;color:var(--muted-2);font-weight:800;padding:0 2px}
+  @media(max-width:680px){.arrow{display:none}.step{min-width:100%}}
+
+  /* ── tokens preview ─────────────────────────────────── */
+  .tok-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:760px){.tok-grid{grid-template-columns:1fr}}
+  .tok-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r2);padding:22px}
+  .tok-card h3{font-size:14px;font-weight:800;margin-bottom:16px;color:var(--ink)}
+  .swatches{display:flex;flex-direction:column;gap:8px}
+  .sw{display:flex;align-items:center;gap:12px}
+  .sw .chipc{width:40px;height:40px;border-radius:10px;flex-shrink:0;border:1px solid var(--line)}
+  .sw .meta{display:flex;flex-direction:column;line-height:1.35}
+  .sw .meta .k{font-family:ui-monospace,Menlo,monospace;font-size:12px;font-weight:600}
+  .sw .meta .v{font-size:11px;color:var(--muted)}
+  .ramp{display:flex;gap:0;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+  .ramp .seg{flex:1;height:46px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:5px;font-size:10px;font-weight:700}
+  .type-spec{display:flex;flex-direction:column;gap:6px}
+  .type-row{display:flex;align-items:baseline;gap:14px;border-bottom:1px dashed var(--line);padding-bottom:6px}
+  .type-row .px{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted);width:46px;flex-shrink:0}
+  .type-row .sample{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .scale-bars{display:flex;flex-direction:column;gap:8px}
+  .scale-bars .sb{display:flex;align-items:center;gap:12px}
+  .scale-bars .bar{height:14px;background:var(--orange);border-radius:4px}
+  .scale-bars .lab{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted);width:42px}
+  .radii{display:flex;gap:12px;flex-wrap:wrap}
+  .radii .rb{width:64px;height:64px;background:linear-gradient(135deg,var(--green),var(--orange));display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;font-size:10px;font-weight:700;color:#fff}
+
+  /* ── gui fork ───────────────────────────────────────── */
+  .warn{background:rgba(210,48,64,.07);border:1px solid rgba(210,48,64,.25);border-radius:var(--r2);padding:16px 20px;font-size:14px;font-weight:600;color:#a32230;display:flex;gap:10px;align-items:center;margin-bottom:18px}
+  .fork{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:680px){.fork{grid-template-columns:1fr}}
+  .forkcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r2);padding:24px}
+  .forkcard.ai{border-top:4px solid var(--orange)}
+  .forkcard.soma{border-top:4px solid var(--green)}
+  .forkcard .fk-file{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;font-weight:700;color:var(--muted)}
+  .forkcard .fk-ttl{font-size:19px;font-weight:800;margin:6px 0 4px}
+  .forkcard .fk-free{font-size:13px;font-weight:700}
+  .forkcard.ai .fk-free{color:var(--orange)}
+  .forkcard.soma .fk-free{color:var(--green)}
+  .forkcard ul{list-style:none;margin-top:16px;display:flex;flex-direction:column;gap:10px}
+  .forkcard li{font-size:13.5px;color:var(--muted);line-height:1.55;padding-left:18px;position:relative}
+  .forkcard li::before{content:"";position:absolute;left:0;top:8px;width:7px;height:7px;border-radius:2px}
+  .forkcard.ai li::before{background:var(--orange)}
+  .forkcard.soma li::before{background:var(--green)}
+  .forkcard li b{color:var(--ink)}
+
+  /* shapes-color mini legend */
+  .shape-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:12.5px;color:var(--muted)}
+  .shape-legend span{display:inline-flex;align-items:center;gap:7px}
+  .lg-tri{width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:11px solid var(--green)}
+  .lg-sq{width:11px;height:11px;background:var(--orange);border-radius:2px}
+  .lg-ci{width:11px;height:11px;background:#C8CCC6;border-radius:50%}
+
+  footer{padding:46px 0 60px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+  .foot-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;align-items:center}
+
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){
+    *{scroll-behavior:auto!important}
+    .reveal{opacity:1;transform:none;transition:none}
+    .btn:hover,.file:hover,.figcard:hover{transform:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <div class="brand">
+      <span class="mark"><span class="tri"></span><span class="sq"></span><span class="ci"></span></span>
+      소마챔피언즈 디자인 시스템
+    </div>
+    <nav class="nav">
+      <a href="#files">파일</a>
+      <a href="#principle">원칙</a>
+      <a href="#figma">Figma</a>
+      <a href="#tokens">토큰</a>
+      <a href="#gui">GUI</a>
+    </nav>
+    <span class="ver">v0.3 · 2026.06.10</span>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="wrap">
+    <div class="reveal in">
+      <span class="eyebrow"><span class="mark"><span class="tri"></span><span class="sq"></span><span class="ci"></span></span> 미니게임 디자인 가이드</span>
+      <h1 class="title">100개의 미니게임을<br><b>하나의 제품</b>으로 <i>보이게</i>.</h1>
+      <p class="lead">"재미"는 살리되 "통일감"은 잃지 않기 위한 최소한의 규칙. 틀(UI)은 고정, 아이덴티티는 방식별 부분 자유, 게임 플레이는 완전 자유 — 이 한 페이지로 전체 가이드를 훑습니다.</p>
+      <div class="hero-cta">
+        <a class="btn btn-dark" href="#files">5개 파일 보기</a>
+        <a class="btn btn-ghost" href="#figma">Figma 링크</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FILES -->
+<section class="block" id="files">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-no">01</span><h2>전달 파일 5종</h2></div>
+    <p class="sec-desc">공통 가이드 1개 + 방식별 추가 가이드 2개 + 토큰 + 이 정리 페이지. 개발자는 저장소에 <code>.md</code> 파일을 AI 코딩 컨텍스트로 넣고, <code>tokens.css</code>를 import 합니다.</p>
+    <div class="files">
+      <div class="file span2 reveal">
+        <div class="fname"><span class="mark"><span class="tri"></span><span class="sq"></span><span class="ci"></span></span> design.md <span class="chip chip-core">전원 필수</span></div>
+        <p>모든 게임의 <b>공통 메뉴얼</b>. 핵심 원칙(이모지 금지·자유도 3단계), 화면 흐름, 디자인 토큰, 공통 UI 컴포넌트, SVG 사용 규칙, 게임 플레이 자유도. 나머지 두 문서는 이 문서를 보충합니다.</p>
+      </div>
+      <div class="file reveal">
+        <div class="fname">design_AI.md <span class="chip chip-ai">AI 생성</span></div>
+        <p>GUI를 <b>AI로 생성</b>할 때의 추가 규칙. 자유도 100%, 브랜드 컬러 자유 사용, 상태값 5색은 고정.</p>
+      </div>
+      <div class="file reveal">
+        <div class="fname">design_soma.md <span class="chip chip-soma">소마 브랜드</span></div>
+        <p>GUI를 <b>소마 브랜드 자산</b>으로 만들 때의 추가 규칙. 활용별 자유도 0% / 20% / 50%.</p>
+      </div>
+      <div class="file reveal">
+        <div class="fname">tokens.css <span class="chip chip-css">코드</span></div>
+        <p>컬러·폰트·간격·라운드·버튼·팝업의 <b>단일 출처</b>. 모든 게임이 import 해 <code>var(--token)</code>으로 사용.</p>
+      </div>
+      <div class="file reveal">
+        <div class="fname">index.html <span class="chip chip-core">개요</span></div>
+        <p>지금 보고 있는 이 페이지. 다섯 파일과 Figma 링크, 토큰을 한눈에 정리한 허브.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRINCIPLE -->
+<section class="block" id="principle">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-no">02</span><h2>핵심 원칙</h2></div>
+    <p class="sec-desc">두 가지만 이해하면 나머지는 참조용입니다.</p>
+    <div class="grid-2">
+      <div class="panel reveal">
+        <h3>이모지 금지 → SVG</h3>
+        <p class="vs">모든 아이콘·기호·장식은 이모지가 아니라 SVG로 만듭니다. 해상도(아이패드~전자칠판), 브랜드 컬러 적용, 기기·OS 편차 제거를 위해서입니다.</p>
+        <div class="emoji-no">
+          <span class="x">✕ 🎮 🔊 ✅</span>
+          <span style="color:var(--muted-2)">→</span>
+          <span style="font-weight:700;color:var(--green)">○ SVG (Phosphor)</span>
+        </div>
+      </div>
+      <div class="panel reveal" style="padding:0;overflow:hidden">
+        <table>
+          <thead><tr><th>영역</th><th>자유도</th><th>내용</th></tr></thead>
+          <tbody>
+            <tr><td><b>UI 시스템</b></td><td><span class="free f0">0%</span></td><td>공통 컴포넌트 · 디자인 토큰 — 100개 전부 동일</td></tr>
+            <tr><td><b>GUI 아이덴티티</b></td><td><span class="free f50">0~50%</span></td><td>캐릭터 · 로고 · 배경 — 방식별(AI / 소마)</td></tr>
+            <tr><td><b>게임 플레이</b></td><td><span class="free f100">100%</span></td><td>인게임 상호작용 · 이펙트 — 완전 자유</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FIGMA -->
+<section class="block" id="figma">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-no">03</span><h2>Figma 링크</h2></div>
+    <p class="sec-desc">개발자에게 공유하는 출처는 두 개입니다. 공통 컴포넌트와 GUI 자산을 여기서 직접 export 합니다.</p>
+    <div class="figma">
+      <a class="figcard reveal" href="https://www.figma.com/design/w028MkChASMSKB9VAyDqlu/Soma_gemes?node-id=173-9370&t=eaVzLhRIhNcCk5zE-4" target="_blank" rel="noopener">
+        <div class="num">① 공통 UI</div>
+        <div class="ttl"><span class="lg-sq"></span> 컴포넌트 라이브러리</div>
+        <div class="sub">스플래시스크린 · 버튼 · 인풋/셀렉트박스 · 게임소개화면 · 게임팝업. 공통 컴포넌트의 단일 출처.</div>
+        <span class="go">Figma 열기 →</span>
+      </a>
+      <a class="figcard reveal" href="https://www.figma.com/design/w028MkChASMSKB9VAyDqlu/Soma_gemes?node-id=1-20048&t=eaVzLhRIhNcCk5zE-4" target="_blank" rel="noopener">
+        <div class="num">② GUI</div>
+        <div class="ttl"><span class="lg-tri"></span> 캐릭터 · SVG</div>
+        <div class="sub">소마 캐릭터 이미지 + SVG 아이콘(Phosphor 계열). 개발자가 자유롭게 export.</div>
+        <span class="go">Figma 열기 →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FLOW -->
+<section class="block" id="flow">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-no">04</span><h2>공통 화면 흐름</h2></div>
+    <p class="sec-desc">스플래시·소개·완료의 컴포넌트는 공통 규칙을 따르고, 인게임은 자유입니다.</p>
+    <div class="flow reveal">
+      <div class="step"><div class="s-no">진입</div><div class="s-name">스플래시</div><div class="s-note">로딩 · 로고 중앙</div></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="s-no">소개</div><div class="s-name">게임 소개</div><div class="s-note">타이틀 · 시작</div></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="s-no">선택</div><div class="s-name">게임 선택</div><div class="s-note">난이도 · 모드<br>(생략 가능)</div></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="s-no">플레이</div><div class="s-name">인게임</div><div class="s-note">자유</div></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="s-no">보상</div><div class="s-name">보상 연출</div><div class="s-note">게임별 자유</div></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="s-no">완료</div><div class="s-name">결과창</div><div class="s-note">인포그래픽<br>재시작·다음·홈</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TOKENS -->
+<section class="block" id="tokens">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-no">05</span><h2>디자인 토큰 미리보기</h2></div>
+    <p class="sec-desc">실제 값은 <code>tokens.css</code>에 있습니다. 코드에서는 <code>var(--token)</code>으로만 사용하세요.</p>
+    <div class="tok-grid">
+
+      <div class="tok-card reveal">
+        <h3>브랜드 컬러</h3>
+        <div class="swatches">
+          <div class="sw"><span class="chipc" style="background:#F19A2F"></span><span class="meta"><span class="k">--color-primary</span><span class="v">#F19A2F · 주황</span></span></div>
+          <div class="sw"><span class="chipc" style="background:#69BE00"></span><span class="meta"><span class="k">--color-primary-green</span><span class="v">#69BE00 · 녹색</span></span></div>
+          <div class="sw"><span class="chipc" style="background:#222824"></span><span class="meta"><span class="k">--color-ink</span><span class="v">#222824 · 검정</span></span></div>
+        </div>
+      </div>
+
+      <div class="tok-card reveal">
+        <h3>상태값 (의미 컬러 · AI 게임도 고정)</h3>
+        <div class="swatches">
+          <div class="sw"><span class="chipc" style="background:#D23040"></span><span class="meta"><span class="k">--status-danger</span><span class="v">#D23040 · 위험/오답</span></span></div>
+          <div class="sw"><span class="chipc" style="background:#E19F3C"></span><span class="meta"><span class="k">--status-warning</span><span class="v">#E19F3C · 경고</span></span></div>
+          <div class="sw"><span class="chipc" style="background:#4DB661"></span><span class="meta"><span class="k">--status-success</span><span class="v">#4DB661 · 성공/정답</span></span></div>
+          <div class="sw"><span class="chipc" style="background:#50B4BB"></span><span class="meta"><span class="k">--status-accent</span><span class="v">#50B4BB · 강조</span></span></div>
+          <div class="sw"><span class="chipc" style="background:#4571C6"></span><span class="meta"><span class="k">--status-info</span><span class="v">#4571C6 · 정보</span></span></div>
+          <div class="sw"><span class="chipc" style="background:#6F6F6F"></span><span class="meta"><span class="k">--status-neutral</span><span class="v">#6F6F6F · 중립</span></span></div>
+        </div>
+      </div>
+
+      <div class="tok-card reveal">
+        <h3>텍스트 · 라인 (검정 + 투명도)</h3>
+        <div class="v" style="font-size:12px;color:var(--muted);margin-bottom:8px">--text-1~6 · 88 / 78 / 58 / 38 / 30 / 18%</div>
+        <div class="ramp" style="margin-bottom:14px">
+          <div class="seg" style="background:rgba(0,0,0,.88);color:#fff">88</div>
+          <div class="seg" style="background:rgba(0,0,0,.78);color:#fff">78</div>
+          <div class="seg" style="background:rgba(0,0,0,.58);color:#fff">58</div>
+          <div class="seg" style="background:rgba(0,0,0,.38)">38</div>
+          <div class="seg" style="background:rgba(0,0,0,.30)">30</div>
+          <div class="seg" style="background:rgba(0,0,0,.18)">18</div>
+        </div>
+        <div class="v" style="font-size:12px;color:var(--muted);margin-bottom:8px">--line-1~4 · 55 / 37 / 13 / 9%</div>
+        <div class="ramp">
+          <div class="seg" style="background:rgba(0,0,0,.55);color:#fff">55</div>
+          <div class="seg" style="background:rgba(0,0,0,.37);color:#fff">37</div>
+          <div class="seg" style="background:rgba(0,0,0,.13)">13</div>
+          <div class="seg" style="background:rgba(0,0,0,.09)">9</div>
+        </div>
+      </div>
+
+      <div class="tok-card reveal">
+        <h3>타이포 스케일 (px)</h3>
+        <div class="type-spec">
+          <div class="type-row"><span class="px">20</span><span class="sample" style="font-size:18px">가나다 Aa 123</span></div>
+          <div class="type-row"><span class="px">24</span><span class="sample" style="font-size:21px">가나다 Aa 123</span></div>
+          <div class="type-row"><span class="px">36</span><span class="sample" style="font-size:26px">가나다 Aa</span></div>
+          <div class="type-row"><span class="px">40</span><span class="sample" style="font-size:29px">가나다 Aa</span></div>
+          <div class="type-row"><span class="px">46</span><span class="sample" style="font-size:32px">가나다</span></div>
+          <div class="type-row"><span class="px">52</span><span class="sample" style="font-size:36px">가나다</span></div>
+          <div class="type-row" style="border:none"><span class="px">64</span><span class="sample" style="font-size:42px">가나</span></div>
+        </div>
+      </div>
+
+      <div class="tok-card reveal">
+        <h3>간격 (8의 배수)</h3>
+        <div class="scale-bars">
+          <div class="sb"><span class="lab">8</span><span class="bar" style="width:8px"></span></div>
+          <div class="sb"><span class="lab">16</span><span class="bar" style="width:16px"></span></div>
+          <div class="sb"><span class="lab">24</span><span class="bar" style="width:24px"></span></div>
+          <div class="sb"><span class="lab">32</span><span class="bar" style="width:32px"></span></div>
+          <div class="sb"><span class="lab">40</span><span class="bar" style="width:40px"></span></div>
+          <div class="sb"><span class="lab">48</span><span class="bar" style="width:48px"></span></div>
+        </div>
+      </div>
+
+      <div class="tok-card reveal">
+        <h3>라운드 (8의 배수)</h3>
+        <div class="radii">
+          <div class="rb" style="border-radius:8px">8</div>
+          <div class="rb" style="border-radius:16px">16</div>
+          <div class="rb" style="border-radius:24px">24</div>
+          <div class="rb" style="border-radius:50%">full</div>
+        </div>
+        <div style="margin-top:16px;font-size:12.5px;color:var(--muted)">버튼 최소 높이 <b style="color:var(--ink)">40px</b> · 8의 배수(40/48/56) · 팝업 배경 블러 <b style="color:var(--ink)">16px</b></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- GUI FORK -->
+<section class="block" id="gui">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-no">06</span><h2>GUI는 두 갈래</h2></div>
+    <p class="sec-desc">캐릭터·로고·배경은 두 방식 중 하나로 만듭니다. 해당 문서를 추가로 읽으세요.</p>
+    <div class="warn reveal">⚠️ AI 캐릭터와 소마 캐릭터를 한 게임에서 혼합하지 않습니다.</div>
+    <div class="fork">
+      <div class="forkcard ai reveal">
+        <div class="fk-file">design_AI.md</div>
+        <div class="fk-ttl">AI 생성</div>
+        <div class="fk-free">자유도 100%</div>
+        <ul>
+          <li><b>캐릭터</b> 2D/3D 자유 생성 (브랜드 컬러 반영 권장)</li>
+          <li><b>게임 로고 · 스플래시 · 배경</b> 게임에 맞게 자유</li>
+          <li><b>브랜드 컬러</b> 자유롭게 사용</li>
+          <li><b>상태값 5색</b>(위험·경고·성공·강조·정보)은 브랜드 값 고정</li>
+        </ul>
+      </div>
+      <div class="forkcard soma reveal">
+        <div class="fk-file">design_soma.md</div>
+        <div class="fk-ttl">소마 브랜드</div>
+        <div class="fk-free">자유도 0% / 20% / 50%</div>
+        <ul>
+          <li><b>2D 활용 (0%)</b> 우기·또기·필이 변형 없이 그대로</li>
+          <li><b>3D 활용 (20%)</b> AI 3D 변환, 형태 유지 (GPT 권장)</li>
+          <li><b>도형 활용 (50%)</b> 삼각형·사각형·원으로 캐릭터 생성</li>
+          <li><b>로고·배경</b> 녹색·주황·블랙 조화</li>
+        </ul>
+        <div class="shape-legend">
+          <span><span class="lg-tri"></span> 삼각형 = 녹색</span>
+          <span><span class="lg-sq"></span> 사각형 = 주황</span>
+          <span><span class="lg-ci"></span> 원 = 흰색/회색</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-row">
+    <span><span class="mark"><span class="tri"></span><span class="sq"></span><span class="ci"></span></span> 소마챔피언즈 미니게임 디자인 시스템</span>
+    <span>v0.3 · 2026.06.10 · 작성: 디자인</span>
+  </div>
+</footer>
+
+<script>
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); obs.unobserve(e.target); }});
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+
+</body>
+</html>
