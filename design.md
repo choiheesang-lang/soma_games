@@ -135,16 +135,21 @@ GUI(캐릭터·로고·배경)를 만드는 방식이 **AI 생성**과 **소마 
 ### 2-2. 타이포그래피
 
 - **브랜드 폰트** — **CookieRun** (기본). 모든 게임의 기본 폰트입니다.
-- **게임 스타일별 폰트** — 게임 성격에 맞게 아래에서 **자유롭게 선택**해 사용하세요.
+- **게임 스타일별 폰트** — 게임 성격·느낌에 맞게 아래 표에서 **자유롭게 선택**해 사용하세요.
+- **우선순위 규칙** — 표는 **인지도·가독성이 높은 순**으로 정렬돼 있습니다(위쪽 = 우선순위 높음). **느낌이 비슷한 폰트가 여러 개라면 위쪽(순위가 높은) 폰트를 우선** 사용하세요. 예) 귀여움은 `Maplestory`(2위) → `Bazzi`(5위) 순, 레트로는 `DNF Bit Bit v2`(7위) → `NeoDunggeunmo Pro`(8위) 순.
 
-| 게임 스타일 | 폰트 | 토큰 |
-|---|---|---|
-| 기본 / 브랜드 | CookieRun | `--font-brand` |
-| 레트로 | DNF Bit Bit v2, NeoDunggeunmo Pro | `--font-game-retro` |
-| 공·스포츠 | NEXON Football Gothic | `--font-game-sports` |
-| 레이싱·자동차·속도 | Kartrider | `--font-game-racing` |
-| 스토리·귀여움 | Maplestory | `--font-game-story` |
-| 전쟁·공포 | Warhaven | `--font-game-war` |
+| 순위 | 폰트 | 추천 게임 | 느낌 | 토큰 |
+|---|---|---|---|---|
+| 1 | **CookieRun** | 로고 · 소마게임 브랜드 · 기본 게임 | 경쾌한 · 매끄러운 · 쫀득한 | `--font-brand` |
+| 2 | **Maplestory** | 스토리 있는 · 귀여운 게임 | 뽀짝한 · 다정한 · 동화 같은 · 올망졸망한 | `--font-game-story` |
+| 3 | **NEXON Football Gothic** | 공 · 스포츠 관련 게임 | 경쾌한 · 힘찬 · 시원한 · 역동적인 · 청량한 · 에너지틱한 | `--font-game-sports` |
+| 4 | **Warhaven** | 전쟁 게임 · 공포 게임 | 으스스한 · 날카로운 · 서늘한 | `--font-game-war` |
+| 5 | **Bazzi** | 필기체 · 귀여운 게임 | 말랑말랑한 · 아기자기한 · 포근한 | `--font-game-cute` |
+| 6 | **Kartrider** | 레이싱 · 자동차 · 속도 게임 | 날렵한 · 힘찬 | `--font-game-racing` |
+| 7 | **DNF Bit Bit v2** | 각진 · 레트로 게임 | 거친 · 둔탁한 · 쿵쿵거리는 | `--font-game-retro` |
+| 8 | **NeoDunggeunmo Pro** | 가볍고 친근한 레트로 게임 (한글) | 아기자기한 · 사각사각한 · 픽셀 단위인 | `--font-game-retro` |
+
+> **레트로 2종 안내** — `DNF Bit Bit v2`(각진·거친)와 `NeoDunggeunmo Pro`(가볍고·친근한)는 모두 레트로 계열입니다. 각진 느낌이면 7위, 친근한 느낌이면 8위를 사용하세요.
 
 - **폰트 개수 규칙** — 한 게임에 폰트는 가능하면 **1종**, 최대 2종. **2종 이상 쓸 경우 반드시 브랜드 폰트(CookieRun)를 포함**합니다. (tokens.css의 각 스타일 폰트는 CookieRun을 폴백으로 두어 이 규칙이 자동 충족됩니다.)
 - **사이즈 스케일** — `20 / 24 / 36 / 40 / 46 / 52 / 64 px` (`--font-size-1` ~ `--font-size-7`)

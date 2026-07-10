@@ -97,12 +97,13 @@
   /* ── Typography · Family ──────────────────────────────────────
      브랜드 폰트(CookieRun)가 모든 스택의 최종 폴백으로 들어가
      "폰트 2종 이상이면 브랜드 폰트 포함" 규칙이 자동 충족됩니다. */
-  --font-brand:       "CookieRun", sans-serif;                                  /* 기본 / 브랜드 */
-  --font-game-retro:  "DNF Bit Bit v2", "NeoDunggeunmo Pro", var(--font-brand); /* 레트로 */
-  --font-game-sports: "NEXON Football Gothic", var(--font-brand);               /* 공·스포츠 */
-  --font-game-racing: "Kartrider", var(--font-brand);                           /* 레이싱·자동차·속도 */
-  --font-game-story:  "Maplestory", var(--font-brand);                          /* 스토리·귀여움 */
-  --font-game-war:    "Warhaven", var(--font-brand);                            /* 전쟁·공포 */
+  --font-brand:       "CookieRun", sans-serif;                                  /* 1. 기본 / 브랜드 */
+  --font-game-story:  "Maplestory", var(--font-brand);                          /* 2. 스토리·귀여움 */
+  --font-game-sports: "NEXON Football Gothic", var(--font-brand);               /* 3. 공·스포츠 */
+  --font-game-war:    "Warhaven", var(--font-brand);                            /* 4. 전쟁·공포 */
+  --font-game-cute:   "Bazzi", var(--font-brand);                               /* 5. 필기체·귀여움 */
+  --font-game-racing: "NEXON Kart Gothic", var(--font-brand);                   /* 6. 레이싱·자동차·속도 */
+  --font-game-retro:  "DNF Bit Bit v2", "NeoDunggeunmo Pro", var(--font-brand); /* 7·8. 레트로 (각진→친근) */
 
   /* ── Button Height (최소 40px · 8의 배수) ─────────────────────
      md(40)가 터치 최소 권장. sm(32)는 비터치·조밀한 UI에서만. */
