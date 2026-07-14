@@ -8,295 +8,149 @@
 <style>
   html,body{margin:0;padding:0;background:#EDEDEA;}
   *{box-sizing:border-box;-webkit-font-smoothing:antialiased;}
-  a{color:#F19A2F;text-decoration:none;}
-  a:hover{color:#D97F12;text-decoration:underline;}
+  a{color:#F19A2F;text-decoration:none;} a:hover{color:#D97F12;text-decoration:underline;}
   .brd-scroll::-webkit-scrollbar{height:10px;width:10px;}
   .brd-scroll::-webkit-scrollbar-thumb{background:#CFCFC9;border-radius:99px;border:2px solid transparent;background-clip:content-box;}
   .brd-scroll::-webkit-scrollbar-track{background:transparent;}
   @keyframes toastIn{from{opacity:0;transform:translate(-50%,16px);}to{opacity:1;transform:translate(-50%,0);}}
+  @keyframes drawerIn{from{transform:translateX(100%);}to{transform:translateX(0);}}
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
 
-  .stage{width:1488px;height:897px;margin:0 auto;background:#F4F4F1;display:flex;flex-direction:column;overflow:hidden;position:relative;font-family:Pretendard,sans-serif;color:#222824;box-shadow:0 18px 60px rgba(0,0,0,.16);}
+  /* ── 반응형 앱 셸 ── */
+  .stage{width:100%;min-height:100dvh;background:#F4F4F1;display:flex;flex-direction:column;position:relative;font-family:Pretendard,sans-serif;color:#222824;}
+  header,.filterbar,footer{flex:none;}
+  .scrollarea{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:24px clamp(16px,3vw,32px) 40px;}
 
-  /* selects */
-  .fsel{height:44px;padding:0 38px 0 15px;border:1.5px solid #DEDED8;border-radius:11px;background:#fff url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22 fill=%22none%22><path d=%22M1 1.5L6 6.5L11 1.5%22 stroke=%22%237A7E7B%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>') no-repeat right 14px center;font-family:inherit;font-size:14.5px;font-weight:600;color:#222824;appearance:none;-webkit-appearance:none;cursor:pointer;}
-  .fsel:focus{border-color:#F19A2F;outline:none;}
-  .sep{color:#C4C4BE;font-size:16px;padding:0 5px;}
-
-  .logout{height:40px;padding:0 18px;border:1.5px solid #DFDFDA;border-radius:10px;background:#fff;font-family:inherit;font-size:14px;font-weight:600;color:#555A55;cursor:pointer;transition:border-color .15s,color .15s;}
+  header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 clamp(16px,3vw,32px);height:70px;background:#fff;border-bottom:1px solid #E7E7E2;}
+  header img{height:30px;width:auto;display:block;}
+  .who{display:flex;align-items:center;gap:10px;} .who .av{width:36px;height:36px;border-radius:50%;background:#FFF0DE;color:#F19A2F;font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;}
+  .who span{font-size:15px;font-weight:600;white-space:nowrap;}
+  .logout{height:38px;padding:0 16px;border:1.5px solid #DFDFDA;border-radius:10px;background:#fff;font:inherit;font-size:13.5px;font-weight:600;color:#555A55;cursor:pointer;white-space:nowrap;transition:.15s;}
   .logout:hover{border-color:#F19A2F;color:#F19A2F;}
 
-  .reset-btn{height:44px;display:flex;align-items:center;gap:6px;padding:0 14px;border:none;background:transparent;font-family:inherit;font-size:14px;font-weight:600;color:#8A8F89;cursor:pointer;transition:color .15s;}
-  .reset-btn:hover{color:#F19A2F;}
-
-  .search-wrap{position:relative;}
-  .search-wrap svg{position:absolute;left:15px;top:50%;transform:translateY(-50%);pointer-events:none;}
-  .search-input{width:300px;height:44px;padding:0 16px 0 42px;border:1.5px solid #DEDED8;border-radius:11px;background:#fff;font-family:inherit;font-size:14.5px;font-weight:500;color:#222824;}
+  .filterbar{display:flex;align-items:center;gap:12px 14px;flex-wrap:wrap;padding:14px clamp(16px,3vw,32px);background:#fff;border-bottom:1px solid #E7E7E2;}
+  .fgroup{display:flex;align-items:center;gap:2px;flex-wrap:wrap;}
+  .fsel{height:42px;padding:0 36px 0 14px;border:1.5px solid #DEDED8;border-radius:11px;background:#fff url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22 fill=%22none%22><path d=%22M1 1.5L6 6.5L11 1.5%22 stroke=%22%237A7E7B%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>') no-repeat right 13px center;font:inherit;font-size:14px;font-weight:600;color:#222824;appearance:none;-webkit-appearance:none;cursor:pointer;}
+  .fsel:focus{border-color:#F19A2F;outline:none;}
+  .sep{color:#C4C4BE;font-size:15px;padding:0 3px;}
+  .ftools{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .reset-btn{height:42px;display:flex;align-items:center;gap:6px;padding:0 12px;border:none;background:transparent;font:inherit;font-size:13.5px;font-weight:600;color:#8A8F89;cursor:pointer;} .reset-btn:hover{color:#F19A2F;}
+  .vtoggle{display:inline-flex;border:1.5px solid #DEDED8;border-radius:10px;overflow:hidden;background:#fff;}
+  .vtoggle button{width:38px;height:38px;border:none;background:#fff;cursor:pointer;display:grid;place-items:center;color:#9AA09A;}
+  .vtoggle button.on{background:#FFF3E4;color:#E08A18;}
+  .search-wrap{position:relative;} .search-wrap>svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;}
+  .search-input{width:clamp(180px,22vw,300px);height:42px;padding:0 16px 0 40px;border:1.5px solid #DEDED8;border-radius:11px;background:#fff;font:inherit;font-size:14px;font-weight:500;color:#222824;}
   .search-input:focus{border-color:#F19A2F;outline:none;}
 
-  .card-outer{cursor:pointer;}
-  .card-img{position:relative;aspect-ratio:4/5;background:#fff;border:1px solid #EAE9E4;border-radius:14px;box-shadow:0 3px 10px rgba(0,0,0,.05);transition:transform .16s,box-shadow .16s;}
-  .card-img img{width:100%;height:100%;object-fit:contain;display:block;}
-  .fav-card .card-img{padding:9px;}
-  .grid-card .card-img{padding:11px;}
-  .fav-card .card-img:hover{transform:translateY(-4px);box-shadow:0 12px 26px rgba(0,0,0,.14);}
-  .grid-card .card-img:hover{transform:translateY(-5px);box-shadow:0 14px 30px rgba(0,0,0,.15);}
-  .fav-btn{position:absolute;top:9px;right:9px;width:36px;height:36px;border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.14);}
-  .chip{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 8px 0 13px;border:1px solid #F0D9B8;border-radius:99px;background:#FFF7EC;font-family:inherit;font-size:13px;font-weight:700;color:#C77F14;cursor:pointer;transition:background .15s;}
-  .chip:hover{background:#FCEBCF;}
+  .sec-h{display:flex;align-items:center;gap:10px;margin-bottom:13px;}
+  .sec-h h2{margin:0;font-size:18px;font-weight:800;}
+  .cnt-badge{min-width:24px;height:24px;padding:0 8px;border-radius:99px;background:#FFF0DE;color:#E08A18;font-size:13px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;}
+
+  /* ── 카드 ── */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:22px 20px;}
+  .card{cursor:pointer;}
+  .card-img{position:relative;aspect-ratio:4/5;border-radius:14px;transition:transform .16s;}
+  .card:hover .card-img{transform:translateY(-5px);}
+  .fav-btn{position:absolute;top:9px;right:9px;width:34px;height:34px;border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.14);z-index:3;}
+  .game-badge{position:absolute;top:9px;left:9px;height:23px;padding:0 9px;border-radius:99px;background:#69BE00;color:#fff;font-size:11px;font-weight:800;display:inline-flex;align-items:center;gap:4px;z-index:3;box-shadow:0 2px 6px rgba(105,190,0,.35);}
+  .cnt-pill{position:absolute;bottom:9px;right:9px;height:26px;padding:0 11px;border-radius:99px;background:rgba(34,40,36,.86);color:#fff;font-size:12px;font-weight:800;display:inline-flex;align-items:center;z-index:3;}
+  .card .title{margin-top:10px;font-size:14.5px;font-weight:700;line-height:1.32;}
+  .card .meta{margin-top:3px;font-size:12px;color:#8C918B;}
+
+  /* ── 흰색 3D 책 목업 (표지 없음) ── */
+  .book3d{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+  .book3d .bk{position:relative;height:88%;aspect-ratio:4/5;background:#fff;border-radius:3px 7px 7px 3px;
+    box-shadow:0 10px 22px rgba(34,40,36,.16), inset 0 0 0 1px #ECECE6;
+    background-image:linear-gradient(90deg,#EDEDE8 0,#EDEDE8 7px,#F6F6F2 7px,#fff 12px);}
+  .book3d .bk::after{content:"";position:absolute;top:3px;bottom:3px;right:0;width:5px;border-radius:0 4px 4px 0;
+    background:repeating-linear-gradient(90deg,#fff 0 1px,#E6E6E0 1px 2px);}   /* 페이지 엣지 */
+  .book3d .bk .bk-t{position:absolute;left:16%;right:12%;top:16%;font-size:clamp(9px,1.05vw,15px);font-weight:800;color:#3A403B;line-height:1.28;word-break:keep-all;}
+  .book3d .bk .bk-s{position:absolute;left:16%;bottom:12%;font-size:clamp(7px,.8vw,11px);font-weight:700;color:#AAB0A9;}
+  .book3d .bk .bk-cover{position:absolute;left:10px;top:5px;width:calc(100% - 16px);height:calc(100% - 10px);object-fit:cover;background:#fff;border-radius:1px 4px 4px 1px;}
+  .card:hover .book3d .bk{box-shadow:0 16px 30px rgba(34,40,36,.22), inset 0 0 0 1px #ECECE6;}
+
+  /* ── 즐겨찾기 가로 스트립 ── */
+  .fav-strip{display:flex;gap:16px;overflow-x:auto;padding-bottom:8px;}
+  .fav-strip .card{flex:none;width:150px;}
+  .empty{display:flex;align-items:center;gap:12px;height:96px;padding:0 22px;border:2px dashed #DBDAD3;border-radius:14px;background:#FBFBF9;color:#7C817B;}
+  .empty b{color:#F19A2F;}
+
+  /* ── 리스트 행 ── */
+  .rows{display:flex;flex-direction:column;gap:8px;}
+  .row{display:flex;align-items:center;gap:14px;padding:9px 12px;background:#fff;border:1px solid #EAE9E4;border-radius:12px;cursor:pointer;transition:box-shadow .14s,border-color .14s;}
+  .row:hover{box-shadow:0 6px 16px rgba(0,0,0,.08);}
+  .thumb{position:relative;width:44px;height:55px;flex:none;border-radius:6px;overflow:hidden;background:#F4F4F0;}
+  .thumb>img{width:100%;height:100%;object-fit:contain;display:block;}
+  .thumb .mini-ph{width:100%;height:100%;display:grid;place-items:center;background:#F1F1EC;}
+  .r-main{flex:1;min-width:0;} .r-title{font-size:14.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .r-meta{margin-top:3px;font-size:12.5px;color:#8C918B;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .r-actions{display:flex;align-items:center;gap:6px;flex:none;}
+  .act{height:34px;padding:0 12px;border:1.5px solid #E4E3DD;border-radius:9px;background:#fff;font:inherit;font-size:12.5px;font-weight:700;color:#5B605A;cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
+  .act:hover{border-color:#F19A2F;color:#F19A2F;}
+  .act.primary{background:#F19A2F;border-color:#F19A2F;color:#fff;} .act.primary:hover{background:#E08A18;}
+  .act.game{border-color:#CDE9B4;color:#4E8C1E;background:#F4FBEC;} .act.game:hover{border-color:#69BE00;color:#4E8C1E;}
+  .rfav{width:34px;height:34px;border:1.5px solid #E4E3DD;border-radius:9px;background:#fff;cursor:pointer;display:grid;place-items:center;}
+  .gtag{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:99px;background:#EAF6E1;color:#4E8C1E;font-size:11px;font-weight:800;}
+
+  .chip{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 8px 0 13px;border:1px solid #F0D9B8;border-radius:99px;background:#FFF7EC;font:inherit;font-size:13px;font-weight:700;color:#C77F14;cursor:pointer;} .chip:hover{background:#FCEBCF;}
+
+  footer{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:0 clamp(16px,3vw,32px);min-height:40px;background:#222824;}
+  footer span{font-size:12.5px;color:#8D938C;} footer a{font-size:12.5px;font-weight:600;color:#F8BD3B;}
 </style>
 </head>
 <body>
 <div class="stage">
-
-  <!-- HEADER -->
-  <header style="height:74px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:#fff;border-bottom:1px solid #E7E7E2;">
-    <img src="assets/logo.svg" alt="로고" style="height:32px;width:auto;display:block;">
-    <div style="display:flex;align-items:center;gap:14px;">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:38px;height:38px;border-radius:50%;background:#FFF0DE;color:#F19A2F;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;">홍</div>
-        <span style="font-size:16px;font-weight:600;color:#222824;"><b style="font-weight:800;">홍길동</b> 선생님</span>
+  <header>
+    <img src="assets/logo.svg" alt="로고">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div class="fgroup">
+        <select class="fsel" data-f="hq"><option value="">교육본사</option><option value="central">중앙교육본사</option><option value="south">남부교육본사</option></select>
+        <span class="sep">›</span>
+        <select class="fsel" data-f="branch"><option value="">지사</option><option value="seoul">서울지사</option><option value="gyeonggi">경기지사</option><option value="incheon">인천지사</option><option value="busan">부산지사</option></select>
       </div>
+      <div class="who"><div class="av">홍</div><span><b style="font-weight:800;">홍길동</b> 선생님</span></div>
       <button class="logout" onclick="location.href='../login/index.html'">로그아웃</button>
     </div>
   </header>
 
-  <!-- FILTER / SEARCH BAR -->
-  <div style="height:86px;flex:none;display:flex;align-items:center;padding:0 32px;background:#fff;border-bottom:1px solid #E7E7E2;">
-    <div style="display:flex;align-items:center;gap:2px;">
-      <select class="fsel" data-f="hq">
-        <option value="">교육본사</option><option value="central">중앙교육본사</option><option value="south">남부교육본사</option>
-      </select>
-      <span class="sep">›</span>
-      <select class="fsel" data-f="branch">
-        <option value="">지사</option><option value="seoul">서울지사</option><option value="gyeonggi">경기지사</option><option value="incheon">인천지사</option><option value="busan">부산지사</option>
-      </select>
-      <span class="sep">›</span>
-      <select class="fsel" data-f="grade">
-        <option value="">학년</option><option value="cho1">초1</option><option value="cho2">초2</option><option value="cho3">초3</option><option value="cho4">초4</option><option value="cho5">초5</option><option value="cho6">초6</option><option value="adv">심화</option>
-      </select>
-      <span class="sep">›</span>
-      <select class="fsel" data-f="sem">
-        <option value="">학기</option><option value="s1">1학기</option><option value="s2">2학기</option>
-      </select>
-      <span class="sep">›</span>
-      <select class="fsel" data-f="year">
-        <option value="">개정년도</option><option value="2022">2022 개정</option><option value="2015">2015 개정</option>
-      </select>
-      <span class="sep">›</span>
-      <select class="fsel" data-f="subject">
-        <option value="">과목</option><option value="think">사고력수학</option><option value="comp">경시수학</option>
-      </select>
+  <div class="filterbar">
+    <div class="fgroup" style="gap:10px;">
+      <select class="fsel" data-f="grade"><option value="">학년</option><option value="유아">유아</option><option value="cho1">초1</option><option value="cho2">초2</option><option value="cho3">초3</option><option value="cho4">초4</option><option value="cho5">초5</option><option value="cho6">초6</option></select>
+      <select class="fsel" data-f="sem"><option value="">학기</option><option value="s1">1학기</option><option value="s2">2학기</option></select>
+      <select class="fsel" data-f="year"><option value="">개정년도</option><option value="2022">2022 개정</option><option value="2015">2015 개정</option></select>
+      <select class="fsel" data-f="subject"><option value="">과목</option><option value="연산">연산</option><option value="교과">교과</option><option value="사고력">사고력</option><option value="경시">경시</option></select>
     </div>
-
-    <div style="margin-left:auto;display:flex;align-items:center;gap:12px;">
+    <div class="ftools">
       <button id="resetBtn" class="reset-btn" style="display:none;">↺ 초기화</button>
+      <div class="vtoggle" id="vtoggle">
+        <button data-view="list" title="리스트"><svg width="17" height="17" viewBox="0 0 18 18" fill="none"><path d="M6 4h9M6 9h9M6 14h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="2.5" cy="4" r="1.3" fill="currentColor"/><circle cx="2.5" cy="9" r="1.3" fill="currentColor"/><circle cx="2.5" cy="14" r="1.3" fill="currentColor"/></svg></button>
+        <button data-view="grid" title="그리드"><svg width="17" height="17" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="6" height="6" rx="1.4" fill="currentColor"/><rect x="10" y="2" width="6" height="6" rx="1.4" fill="currentColor"/><rect x="2" y="10" width="6" height="6" rx="1.4" fill="currentColor"/><rect x="10" y="10" width="6" height="6" rx="1.4" fill="currentColor"/></svg></button>
+      </div>
       <div class="search-wrap">
         <svg width="17" height="17" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6.5" stroke="#9A9E98" stroke-width="2"/><path d="M14 14L18 18" stroke="#9A9E98" stroke-width="2" stroke-linecap="round"/></svg>
-        <input id="searchInput" class="search-input" placeholder="교재명을 검색하세요">
+        <input id="searchInput" class="search-input" placeholder="교재·시리즈명 검색">
       </div>
     </div>
   </div>
 
-  <!-- SCROLL AREA -->
-  <div class="brd-scroll" style="flex:1;overflow-y:auto;overflow-x:hidden;padding:26px 32px 30px;">
-
-    <!-- FAVORITES -->
-    <section style="margin-bottom:30px;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:15px;">
-        <span style="font-size:20px;color:#F19A2F;">★</span>
-        <h2 style="margin:0;font-size:19px;font-weight:800;color:#222824;">즐겨찾기</h2>
-        <span id="favCount" style="min-width:24px;height:24px;padding:0 8px;border-radius:99px;background:#FFF0DE;color:#E08A18;font-size:13px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;">0</span>
-      </div>
+  <div class="scrollarea brd-scroll">
+    <section id="favSection" style="margin-bottom:24px;background:#fff;border:1px solid #ECECE6;border-radius:16px;padding:18px 20px 20px;">
+      <div class="sec-h"><span style="font-size:19px;color:#F19A2F;">★</span><h2>즐겨찾기</h2><span class="cnt-badge" id="favCount">0</span></div>
       <div id="favArea"></div>
     </section>
-
-    <div style="height:1px;background:#E7E7E2;margin-bottom:24px;"></div>
-
-    <!-- TEXTBOOK LIST -->
     <section>
-      <div style="display:flex;align-items:flex-end;gap:12px;margin-bottom:6px;">
-        <h2 id="headingText" style="margin:0;font-size:19px;font-weight:800;color:#222824;">전체 교재</h2>
-        <span style="font-size:14px;font-weight:600;color:#8C918B;padding-bottom:1px;">총 <b id="listCount" style="color:#69BE00;font-weight:800;">0</b>종</span>
+      <div style="display:flex;align-items:flex-end;gap:12px;margin-bottom:8px;">
+        <h2 id="headingText" style="margin:0;font-size:18px;font-weight:800;">전체 교재</h2>
+        <span id="countLine" style="font-size:13.5px;font-weight:600;color:#8C918B;padding-bottom:1px;"></span>
       </div>
       <div id="chipsArea"></div>
-      <div id="listArea"></div>
+      <div id="mainArea" style="margin-top:14px;"></div>
     </section>
-
   </div>
 
-  <!-- FOOTER -->
-  <footer style="height:40px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:#222824;">
-    <span style="font-size:12.5px;color:#8D938C;">© 2025 스마트 전자칠판 · 교재 뷰어</span>
-    <a href="#" style="font-size:12.5px;font-weight:600;color:#F8BD3B;">Open Source License 확인</a>
-  </footer>
-
+  <footer><span>© 2025 스마트 전자칠판 · 교재 뷰어</span><a href="#">Open Source License 확인</a></footer>
   <div id="toastArea"></div>
 </div>
-
-<script>
-const DIR = "assets/covers/";
-const C_RAY="#F19A2F", C_RAINBOW="#5AAE00", C_PRISM="#2B322D", C_PREMIER="#C68A1E";
-const BOOKS = [
-  { id:"b1",  series:"레이",           title:"레이 A1-1",          grade:"cho1", sem:"s1", year:"2022", subject:"think", color:C_RAY },
-  { id:"b2",  series:"레이",           title:"레이 B1-1",          grade:"cho2", sem:"s1", year:"2022", subject:"think", color:C_RAY },
-  { id:"b3",  series:"레이",           title:"레이 C1-1",          grade:"cho3", sem:"s1", year:"2022", subject:"think", color:C_RAY },
-  { id:"b4",  series:"레이플러스",     title:"레이플러스 B1-1 (상)", grade:"cho2", sem:"s1", year:"2022", subject:"think", color:C_RAY },
-  { id:"b5",  series:"레이플러스",     title:"레이플러스 C1-1 (상)", grade:"cho3", sem:"s1", year:"2022", subject:"think", color:C_RAY },
-  { id:"b6",  series:"레인보우",       title:"레인보우 D1-1",      grade:"cho4", sem:"s1", year:"2022", subject:"think", color:C_RAINBOW },
-  { id:"b7",  series:"레인보우",       title:"레인보우 E1-1",      grade:"cho5", sem:"s1", year:"2015", subject:"think", color:C_RAINBOW },
-  { id:"b8",  series:"레인보우플러스", title:"레인보우플러스 D1-1", grade:"cho4", sem:"s1", year:"2022", subject:"think", color:C_RAINBOW },
-  { id:"b9",  series:"레인보우플러스", title:"레인보우플러스 E1-1", grade:"cho5", sem:"s1", year:"2015", subject:"think", color:C_RAINBOW },
-  { id:"b10", series:"프리미어",       title:"프리미어 AL-1",      grade:"adv",  sem:"s2", year:"2022", subject:"comp",  color:C_PREMIER },
-  { id:"b11", series:"프리미어",       title:"프리미어 경시 1-1",   grade:"adv",  sem:"s1", year:"2022", subject:"comp",  color:C_PREMIER },
-  { id:"b12", series:"프리미어",       title:"프리미어 초급 1",     grade:"adv",  sem:"s1", year:"2015", subject:"comp",  color:C_PREMIER },
-  { id:"b13", series:"프리즘",         title:"프리즘 F1-1",        grade:"cho6", sem:"s1", year:"2022", subject:"think", color:C_PRISM },
-  { id:"b14", series:"프리즘플러스",   title:"프리즘플러스 D1-1",   grade:"cho4", sem:"s2", year:"2022", subject:"think", color:C_PRISM },
-  { id:"b15", series:"프리즘플러스",   title:"프리즘플러스 F1-1",   grade:"cho6", sem:"s2", year:"2022", subject:"think", color:C_PRISM }
-].map(b => ({ ...b, cover: DIR + b.id + ".png" }));
-
-const GRADE_L={cho1:"초1",cho2:"초2",cho3:"초3",cho4:"초4",cho5:"초5",cho6:"초6",adv:"심화"};
-const SEM_L={s1:"1학기",s2:"2학기"};
-const YEAR_L={"2022":"2022 개정","2015":"2015 개정"};
-const SUBJ_L={think:"사고력수학",comp:"경시수학"};
-const HQ_L={central:"중앙교육본사",south:"남부교육본사"};
-const BRANCH_L={seoul:"서울지사",gyeonggi:"경기지사",incheon:"인천지사",busan:"부산지사"};
-
-const state = { favs:["b1","b6","b13"], f:{hq:"",branch:"",grade:"",sem:"",year:"",subject:""}, q:"", toastMsg:null };
-let toastTimer = null;
-
-const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const norm = s => s.replace(/\s/g,"").toLowerCase();
-
-function favBtnHtml(b){
-  const isFav = state.favs.includes(b.id);
-  const btnBg = isFav ? "background:#FFF2DD;" : "background:rgba(255,255,255,.94);";
-  const starColor = isFav ? "#F19A2F" : "#C6CBC3";
-  return `<button class="fav-btn" data-fav="${b.id}" title="즐겨찾기" style="${btnBg}"><span style="font-size:19px;line-height:1;color:${starColor};">★</span></button>`;
-}
-function metaText(b){ return GRADE_L[b.grade]+" · "+SEM_L[b.sem]+" · "+SUBJ_L[b.subject]; }
-
-function render(){
-  const f = state.f, q = state.q.trim(), nq = norm(q);
-  const contentActive = !!(f.grade||f.sem||f.year||f.subject||q);
-  const orgActive = !!(f.hq||f.branch);
-  const anyActive = contentActive || orgActive;
-
-  const match = b => {
-    if(f.grade && b.grade!==f.grade) return false;
-    if(f.sem && b.sem!==f.sem) return false;
-    if(f.year && b.year!==f.year) return false;
-    if(f.subject && b.subject!==f.subject) return false;
-    if(nq && norm(b.title).indexOf(nq)===-1 && norm(b.series).indexOf(nq)===-1) return false;
-    return true;
-  };
-  const list = BOOKS.filter(match);
-  const favBooks = BOOKS.filter(b => state.favs.includes(b.id));
-
-  // reset button visibility
-  document.getElementById("resetBtn").style.display = anyActive ? "flex" : "none";
-
-  // favorites
-  document.getElementById("favCount").textContent = favBooks.length;
-  const favArea = document.getElementById("favArea");
-  if(favBooks.length){
-    favArea.innerHTML = `<div class="brd-scroll" style="display:flex;gap:16px;overflow-x:auto;padding-bottom:8px;">` +
-      favBooks.map(b => `
-        <div class="fav-card card-outer" data-open="${esc(b.title)}" style="flex:none;width:158px;">
-          <div class="card-img">
-            <img src="${b.cover}" alt="${esc(b.title)}">
-            ${favBtnHtml(b)}
-          </div>
-          <div style="margin-top:9px;font-size:14px;font-weight:700;color:#222824;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(b.title)}</div>
-          <div style="margin-top:2px;font-size:12px;color:#8C918B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${metaText(b)}</div>
-        </div>`).join("") + `</div>`;
-  } else {
-    favArea.innerHTML = `
-      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;height:150px;border:2px dashed #DBDAD3;border-radius:16px;background:#FBFBF9;">
-        <div style="font-size:30px;color:#D2D5CE;">☆</div>
-        <div style="font-size:15px;font-weight:700;color:#7C817B;">즐겨찾기한 교재가 없습니다</div>
-        <div style="font-size:13px;color:#A2A6A0;">교재 카드의 <span style="color:#F19A2F;font-weight:800;">★</span> 아이콘을 눌러 자주 쓰는 교재를 추가하세요</div>
-      </div>`;
-  }
-
-  // heading + count
-  document.getElementById("headingText").textContent = contentActive ? "검색 결과" : "전체 교재";
-  document.getElementById("listCount").textContent = list.length;
-
-  // chips
-  const chips = [];
-  const add = (k,label) => chips.push({k,label});
-  if(f.hq) add("hq", HQ_L[f.hq]);
-  if(f.branch) add("branch", BRANCH_L[f.branch]);
-  if(f.grade) add("grade", GRADE_L[f.grade]);
-  if(f.sem) add("sem", SEM_L[f.sem]);
-  if(f.year) add("year", YEAR_L[f.year]);
-  if(f.subject) add("subject", SUBJ_L[f.subject]);
-  if(q) add("q", "“"+q+"”");
-  const chipsArea = document.getElementById("chipsArea");
-  chipsArea.innerHTML = anyActive
-    ? `<div style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px;">` +
-        chips.map(c => `<button class="chip" data-chip="${c.k}">${esc(c.label)}<span style="font-size:14px;color:#D9A24E;">✕</span></button>`).join("") + `</div>`
-    : "";
-
-  // list grid / no results
-  const listArea = document.getElementById("listArea");
-  if(list.length){
-    listArea.innerHTML = `<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:22px 20px;margin-top:18px;">` +
-      list.map(b => `
-        <div class="grid-card card-outer">
-          <div class="card-img" data-open="${esc(b.title)}">
-            <img src="${b.cover}" alt="${esc(b.title)}">
-            ${favBtnHtml(b)}
-          </div>
-          <div style="margin-top:11px;display:flex;align-items:center;gap:6px;">
-            <span style="display:inline-flex;align-items:center;padding:3px 11px;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.01em;color:#fff;background:${b.color};">${esc(b.series)}</span>
-          </div>
-          <div style="margin-top:7px;font-size:15.5px;font-weight:700;color:#222824;line-height:1.3;">${esc(b.title)}</div>
-          <div style="margin-top:3px;font-size:12.5px;color:#8C918B;">${metaText(b)}</div>
-        </div>`).join("") + `</div>`;
-  } else {
-    listArea.innerHTML = `
-      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;height:320px;">
-        <svg width="44" height="44" viewBox="0 0 44 44" fill="none"><circle cx="19" cy="19" r="13" stroke="#B9BDB5" stroke-width="3"/><path d="M29 29L39 39" stroke="#B9BDB5" stroke-width="3" stroke-linecap="round"/></svg>
-        <div style="font-size:18px;font-weight:800;color:#5B605A;">검색 결과가 없습니다</div>
-        <div style="font-size:14px;color:#9A9E98;text-align:center;line-height:1.6;">선택하신 조건에 맞는 교재를 찾지 못했어요.<br>필터를 조정하거나 검색어를 바꿔보세요.</div>
-        <button id="emptyReset" style="margin-top:6px;height:44px;padding:0 22px;border:none;border-radius:11px;background:#F19A2F;color:#fff;font-family:inherit;font-size:14.5px;font-weight:700;cursor:pointer;">전체 교재 보기</button>
-      </div>`;
-  }
-}
-
-function showToast(title){
-  state.toastMsg = title + " 교재로 수업을 시작합니다";
-  const area = document.getElementById("toastArea");
-  area.innerHTML = `<div style="position:absolute;left:50%;bottom:66px;transform:translateX(-50%);background:#222824;color:#fff;padding:14px 22px;border-radius:12px;font-size:14.5px;font-weight:600;box-shadow:0 12px 34px rgba(0,0,0,.32);animation:toastIn .22s ease;display:flex;align-items:center;gap:10px;z-index:80;white-space:nowrap;"><span style="color:#AEE289;font-size:16px;">▶</span>${esc(state.toastMsg)}</div>`;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { area.innerHTML = ""; state.toastMsg = null; }, 2200);
-}
-
-function resetAll(){ state.f = {hq:"",branch:"",grade:"",sem:"",year:"",subject:""}; state.q=""; syncControls(); render(); }
-function syncControls(){
-  document.querySelectorAll(".fsel").forEach(sel => sel.value = state.f[sel.dataset.f]);
-  document.getElementById("searchInput").value = state.q;
-}
-
-// events (delegated)
-document.querySelectorAll(".fsel").forEach(sel =>
-  sel.addEventListener("change", () => { state.f[sel.dataset.f] = sel.value; render(); }));
-document.getElementById("searchInput").addEventListener("input", e => { state.q = e.target.value; render(); });
-document.getElementById("resetBtn").addEventListener("click", resetAll);
-
-document.querySelector(".stage").addEventListener("click", e => {
-  const favBtn = e.target.closest("[data-fav]");
-  if(favBtn){ e.stopPropagation(); const id = favBtn.dataset.fav;
-    state.favs = state.favs.includes(id) ? state.favs.filter(x=>x!==id) : [...state.favs, id]; render(); return; }
-  const chip = e.target.closest("[data-chip]");
-  if(chip){ const k = chip.dataset.chip; if(k==="q") state.q=""; else state.f[k]=""; syncControls(); render(); return; }
-  const opener = e.target.closest("[data-open]");
-  if(opener){ showToast(opener.dataset.open); return; }
-  if(e.target.id === "emptyReset"){ resetAll(); return; }
-});
-
-render();
-</script>
+<script src="app.js"></script>
 </body>
 </html>
