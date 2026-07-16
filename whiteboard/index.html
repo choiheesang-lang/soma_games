@@ -17,9 +17,54 @@
   @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
 
   /* ── 반응형 앱 셸 ── */
-  .stage{width:100%;min-height:100dvh;background:#F4F4F1;display:flex;flex-direction:column;position:relative;font-family:Pretendard,sans-serif;color:#222824;}
-  header,.filterbar,footer{flex:none;}
+  .stage{width:100%;height:100dvh;background:#F4F4F1;display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:Pretendard,sans-serif;color:#222824;}
+  header,footer{flex:none;}
+  .body{flex:1;min-height:0;display:flex;}
+  .filterbar{flex:none;}
   .scrollarea{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:24px clamp(16px,3vw,32px) 40px;}
+
+  .body{position:relative;}
+  .side-head,.fdiv,.side-foot,.side-reopen{display:none;}  /* 기본 A안: 숨김 */
+
+  /* ── A안(기본): 필터 상단 가로바 ── */
+  .layout-A .body{flex-direction:column;}
+  .layout-A .search-wrap{margin-left:auto;}          /* 검색 우측 정렬 */
+
+  /* ── B안: 필터 좌측 고정 사이드바 ── */
+  .layout-B .body{flex-direction:row;}
+  .layout-B .filterbar{width:clamp(232px,21vw,288px);flex-direction:column;align-items:stretch;gap:14px;border-right:1px solid #E7E7E2;border-bottom:none;overflow-y:auto;transition:width .2s;}
+  .layout-B .side-head{display:flex;align-items:center;justify-content:space-between;}
+  .layout-B .side-title{font-size:14px;font-weight:800;color:#5B605A;}
+  .layout-B .filterbar .fgroup{flex-direction:column;align-items:stretch;gap:10px;width:100%;}
+  .layout-B .filterbar .fsel{width:100%;}
+  .layout-B .reset-btn{align-self:flex-start;}
+  .layout-B .fdiv{display:block;border-top:1px solid #ECECE6;}
+  .layout-B .search-wrap{width:100%;}
+  .layout-B .search-input{flex:1;min-width:0;}
+  .layout-B .side-foot{display:block;margin-top:auto;padding-top:14px;border-top:1px solid #ECECE6;font-size:11.5px;line-height:1.6;color:#9AA09A;}
+  .layout-B .side-foot a{font-weight:600;color:#C79A4A;}
+  .layout-B footer{display:none;}                     /* 본문 하단 푸터바 숨김(사이드바로 이동) */
+  /* 사이드바 접기 */
+  .side-toggle{display:none;width:28px;height:28px;border:1.5px solid #E1E0DA;border-radius:8px;background:#fff;color:#8A8F89;font-size:15px;line-height:1;cursor:pointer;}
+  .layout-B .side-toggle{display:block;}
+  .layout-B.sidebar-collapsed .filterbar{width:0;min-width:0;padding:0;border-right:none;overflow:hidden;}
+  .layout-B.sidebar-collapsed .side-reopen{display:inline-flex;}
+  .side-reopen{position:absolute;left:12px;top:12px;z-index:20;align-items:center;gap:6px;height:38px;padding:0 14px;border:1.5px solid #DEDED8;border-radius:10px;background:#fff;font:inherit;font-size:13px;font-weight:700;color:#5B605A;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.08);}
+  @media (max-width:640px){
+    .layout-B .body{flex-direction:column;}
+    .layout-B .filterbar{width:auto;flex-direction:row;flex-wrap:wrap;gap:12px 14px;border-right:none;border-bottom:1px solid #E7E7E2;}
+    .layout-B .filterbar .fgroup{flex-direction:row;flex-wrap:wrap;width:auto;}
+    .layout-B .filterbar .fsel{width:auto;}
+    .layout-B .side-head,.layout-B .fdiv,.layout-B .side-foot{display:none;}
+    .layout-B .search-wrap{width:auto;margin-left:auto;}
+    .layout-B .search-input{flex:none;width:clamp(160px,22vw,280px);}
+  }
+
+  /* ── 임시 A/B 시안 전환 토글 ── */
+  .ab-toggle{position:fixed;right:16px;bottom:16px;z-index:90;display:flex;align-items:center;gap:4px;padding:5px;background:#222824;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.28);}
+  .ab-toggle .ab-label{color:#9AA09A;font-size:11px;font-weight:700;padding:0 6px;}
+  .ab-toggle button{border:none;background:transparent;color:#CFCFC9;font:inherit;font-size:13px;font-weight:800;padding:6px 12px;border-radius:8px;cursor:pointer;}
+  .ab-toggle button.on{background:#F19A2F;color:#fff;}
 
   header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 clamp(16px,3vw,32px);height:70px;background:#fff;border-bottom:1px solid #E7E7E2;}
   header img{height:30px;width:auto;display:block;}
@@ -38,9 +83,18 @@
   .vtoggle{display:inline-flex;border:1.5px solid #DEDED8;border-radius:10px;overflow:hidden;background:#fff;}
   .vtoggle button{width:38px;height:38px;border:none;background:#fff;cursor:pointer;display:grid;place-items:center;color:#9AA09A;}
   .vtoggle button.on{background:#FFF3E4;color:#E08A18;}
-  .search-wrap{position:relative;} .search-wrap>svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;}
+  .search-wrap{position:relative;display:flex;align-items:center;gap:8px;} .search-wrap>svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;}
   .search-input{width:clamp(180px,22vw,300px);height:42px;padding:0 16px 0 40px;border:1.5px solid #DEDED8;border-radius:11px;background:#fff;font:inherit;font-size:14px;font-weight:500;color:#222824;}
   .search-input:focus{border-color:#F19A2F;outline:none;}
+  .search-btn{flex:none;height:42px;padding:0 16px;border:none;border-radius:11px;background:#F19A2F;color:#fff;font:inherit;font-size:14px;font-weight:700;cursor:pointer;} .search-btn:hover{background:#E08A18;}
+
+  /* 즐겨찾기 드래그 순서변경 */
+  .fav-hint{font-size:12px;font-weight:600;color:#B0B4AD;margin-left:auto;}
+  .card img,.thumb img{-webkit-user-drag:none;user-drag:none;}   /* 네이티브 이미지 드래그 차단 */
+  #favArea .fav-strip .card{cursor:grab;touch-action:pan-y;user-select:none;}
+  #favArea .fav-strip .card.dragging{opacity:.45;cursor:grabbing;}
+  #favArea .fav-strip .card.drop-before{box-shadow:-3px 0 0 0 #F19A2F;}
+  #favArea .fav-strip .card.drop-after{box-shadow:3px 0 0 0 #F19A2F;}
 
   .sec-h{display:flex;align-items:center;gap:10px;margin-bottom:13px;}
   .sec-h h2{margin:0;font-size:18px;font-weight:800;}
@@ -66,6 +120,11 @@
     background:repeating-linear-gradient(90deg,#fff 0 1px,#E6E6E0 1px 2px);}   /* 페이지 엣지 */
   .book3d .bk .bk-t{position:absolute;left:16%;right:12%;top:16%;font-size:clamp(9px,1.05vw,15px);font-weight:800;color:#3A403B;line-height:1.28;word-break:keep-all;}
   .book3d .bk .bk-s{position:absolute;left:16%;bottom:12%;font-size:clamp(7px,.8vw,11px);font-weight:700;color:#AAB0A9;}
+  /* 자동커버(표지 없음): 과목색 스파인 + 라벨 */
+  .book3d .bk.auto{background-image:linear-gradient(90deg,var(--spine) 0 6px,color-mix(in srgb,var(--spine) 14%,#fff) 6px 11px,#fff 13px);}
+  .book3d .bk.auto .bk-t{top:27%;}
+  .book3d .bk .bk-subj{position:absolute;left:15%;right:12%;top:13%;font-size:clamp(8px,.82vw,11px);font-weight:800;letter-spacing:.2px;color:var(--spine);border-bottom:2px solid var(--spine);padding-bottom:4px;}
+  .book3d .bk .bk-gs{position:absolute;left:15%;right:12%;bottom:12%;font-size:clamp(7px,.8vw,11px);font-weight:700;color:#9AA09A;}
   .book3d .bk .bk-cover{position:absolute;left:10px;top:5px;width:calc(100% - 16px);height:calc(100% - 10px);object-fit:cover;background:#fff;border-radius:1px 4px 4px 1px;}
   .card:hover .book3d .bk{box-shadow:0 16px 30px rgba(34,40,36,.22), inset 0 0 0 1px #ECECE6;}
 
@@ -99,7 +158,7 @@
 </style>
 </head>
 <body>
-<div class="stage">
+<div class="stage layout-A">
   <header>
     <img src="assets/logo.svg" alt="로고">
     <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
@@ -113,43 +172,58 @@
     </div>
   </header>
 
+  <div class="body">
   <div class="filterbar">
+    <div class="side-head"><span class="side-title">필터</span><button class="side-toggle" id="sideToggle" title="사이드바 접기">‹</button></div>
     <div class="fgroup" style="gap:10px;">
       <select class="fsel" data-f="grade"><option value="">학년</option><option value="유아">유아</option><option value="cho1">초1</option><option value="cho2">초2</option><option value="cho3">초3</option><option value="cho4">초4</option><option value="cho5">초5</option><option value="cho6">초6</option></select>
       <select class="fsel" data-f="sem"><option value="">학기</option><option value="s1">1학기</option><option value="s2">2학기</option></select>
       <select class="fsel" data-f="year"><option value="">개정년도</option><option value="2022">2022 개정</option><option value="2015">2015 개정</option></select>
       <select class="fsel" data-f="subject"><option value="">과목</option><option value="연산">연산</option><option value="교과">교과</option><option value="사고력">사고력</option><option value="경시">경시</option></select>
-    </div>
-    <div class="ftools">
       <button id="resetBtn" class="reset-btn" style="display:none;">↺ 초기화</button>
-      <div class="vtoggle" id="vtoggle">
-        <button data-view="list" title="리스트"><svg width="17" height="17" viewBox="0 0 18 18" fill="none"><path d="M6 4h9M6 9h9M6 14h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="2.5" cy="4" r="1.3" fill="currentColor"/><circle cx="2.5" cy="9" r="1.3" fill="currentColor"/><circle cx="2.5" cy="14" r="1.3" fill="currentColor"/></svg></button>
-        <button data-view="grid" title="그리드"><svg width="17" height="17" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="6" height="6" rx="1.4" fill="currentColor"/><rect x="10" y="2" width="6" height="6" rx="1.4" fill="currentColor"/><rect x="2" y="10" width="6" height="6" rx="1.4" fill="currentColor"/><rect x="10" y="10" width="6" height="6" rx="1.4" fill="currentColor"/></svg></button>
-      </div>
-      <div class="search-wrap">
-        <svg width="17" height="17" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6.5" stroke="#9A9E98" stroke-width="2"/><path d="M14 14L18 18" stroke="#9A9E98" stroke-width="2" stroke-linecap="round"/></svg>
-        <input id="searchInput" class="search-input" placeholder="교재·시리즈명 검색">
-      </div>
+    </div>
+    <div class="fdiv"></div>
+    <div class="search-wrap">
+      <svg width="17" height="17" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6.5" stroke="#9A9E98" stroke-width="2"/><path d="M14 14L18 18" stroke="#9A9E98" stroke-width="2" stroke-linecap="round"/></svg>
+      <input id="searchInput" class="search-input" placeholder="교재·시리즈명 검색">
+      <button class="search-btn" id="searchBtn">검색</button>
+    </div>
+    <div class="side-foot">
+      <div>© 2025 스마트 전자칠판 · 교재 뷰어</div>
+      <a href="#">Open Source License 확인</a>
     </div>
   </div>
 
+  <button class="side-reopen" id="sideReopen" title="필터 열기">☰ 필터</button>
   <div class="scrollarea brd-scroll">
     <section id="favSection" style="margin-bottom:24px;background:#fff;border:1px solid #ECECE6;border-radius:16px;padding:18px 20px 20px;">
-      <div class="sec-h"><span style="font-size:19px;color:#F19A2F;">★</span><h2>즐겨찾기</h2><span class="cnt-badge" id="favCount">0</span></div>
+      <div class="sec-h"><span style="font-size:19px;color:#F19A2F;">★</span><h2>즐겨찾기</h2><span class="cnt-badge" id="favCount">0</span><span class="fav-hint">드래그로 순서 변경</span></div>
       <div id="favArea"></div>
     </section>
     <section>
-      <div style="display:flex;align-items:flex-end;gap:12px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
         <h2 id="headingText" style="margin:0;font-size:18px;font-weight:800;">전체 교재</h2>
-        <span id="countLine" style="font-size:13.5px;font-weight:600;color:#8C918B;padding-bottom:1px;"></span>
+        <span id="countLine" style="font-size:13.5px;font-weight:600;color:#8C918B;"></span>
+        <div class="vtoggle" id="vtoggle" style="margin-left:auto;">
+          <button data-view="list" title="리스트"><svg width="17" height="17" viewBox="0 0 18 18" fill="none"><path d="M6 4h9M6 9h9M6 14h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="2.5" cy="4" r="1.3" fill="currentColor"/><circle cx="2.5" cy="9" r="1.3" fill="currentColor"/><circle cx="2.5" cy="14" r="1.3" fill="currentColor"/></svg></button>
+          <button data-view="grid" title="그리드"><svg width="17" height="17" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="6" height="6" rx="1.4" fill="currentColor"/><rect x="10" y="2" width="6" height="6" rx="1.4" fill="currentColor"/><rect x="2" y="10" width="6" height="6" rx="1.4" fill="currentColor"/><rect x="10" y="10" width="6" height="6" rx="1.4" fill="currentColor"/></svg></button>
+        </div>
       </div>
       <div id="chipsArea"></div>
       <div id="mainArea" style="margin-top:14px;"></div>
     </section>
   </div>
+  </div>
 
   <footer><span>© 2025 스마트 전자칠판 · 교재 뷰어</span><a href="#">Open Source License 확인</a></footer>
   <div id="toastArea"></div>
+
+  <!-- 임시: A/B 시안 전환 -->
+  <div class="ab-toggle" id="abToggle" title="레이아웃 시안 전환(임시)">
+    <span class="ab-label">시안</span>
+    <button data-layout="A">A안</button>
+    <button data-layout="B">B안</button>
+  </div>
 </div>
 <script src="app.js"></script>
 </body>

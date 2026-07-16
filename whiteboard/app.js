@@ -17,10 +17,13 @@ const store={ get:(k,d)=>{try{return JSON.parse(localStorage.getItem("wb_"+k))??
 
 // ── 상태 ────────────────────────────────────────────────────────
 let VOLS=[];
-const state={ f:{hq:"",branch:"",grade:"",sem:"",year:"",subject:""}, q:"", view:store.get("view","grid"), favs:new Set(store.get("favs",[])) };
-let toastTimer=null;
-const persist=()=>{ store.set("favs",[...state.favs]); store.set("view",state.view); };
-const toggleFav=id=>{ state.favs.has(id)?state.favs.delete(id):state.favs.add(id); persist(); render(); };
+const state={ f:{hq:"",branch:"",grade:"",sem:"",year:"",subject:""}, q:"", view:store.get("view","grid"), favs:store.get("favs",[]).slice(), layout:store.get("layout","A"), sidebarCollapsed:store.get("sbcollapsed",false) };
+let toastTimer=null, suppressClick=false;
+const persist=()=>{ store.set("favs",state.favs); store.set("view",state.view); store.set("layout",state.layout); store.set("sbcollapsed",state.sidebarCollapsed); };
+function applyLayout(){ const st=document.querySelector(".stage"); st.classList.remove("layout-A","layout-B"); st.classList.add("layout-"+state.layout);
+  st.classList.toggle("sidebar-collapsed",state.sidebarCollapsed);
+  document.querySelectorAll("#abToggle button").forEach(b=>b.classList.toggle("on",b.dataset.layout===state.layout)); }
+const toggleFav=id=>{ const i=state.favs.indexOf(id); i>=0?state.favs.splice(i,1):state.favs.push(id); persist(); render(); };
 const volById=id=>VOLS.find(v=>v.id===id);
 
 // ── 헬퍼 ────────────────────────────────────────────────────────
@@ -33,16 +36,22 @@ function matchVol(v){ const f=state.f,nq=norm(state.q);
   if(nq&&norm(v.title).indexOf(nq)===-1)return false;
   return true; }
 
-// 큰 카드: 교재(책) 프레임. 표지 있으면 프레임 안 이미지, 없으면 면에 제목.
-function bookFrame(v){ const inner=v.cover
-  ? `<img class="bk-cover" src="${v.cover}" alt="${esc(v.title)}" loading="lazy">`
-  : `<div class="bk-t">${esc(v.title)}</div>`;
-  return `<div class="book3d"><div class="bk">${inner}</div></div>`; }
+// 큰 카드: 교재(책) 프레임. 표지 있으면 프레임 안 이미지, 없으면 정보형 자동커버.
+function bookFrame(v){
+  if(v.cover) return `<div class="book3d"><div class="bk"><img class="bk-cover" src="${v.cover}" alt="${esc(v.title)}" loading="lazy" draggable="false"></div></div>`;
+  // 표지 없음 → 자동커버: 과목색 스파인 + 상단 과목라벨 + 제목 + 하단 학년·학기
+  const subj=SUBJ_L[v.subject]||"";
+  const gs=[v.grade&&GRADE_L[v.grade], v.sem&&SEM_L[v.sem]].filter(Boolean).join(" · ");
+  return `<div class="book3d"><div class="bk auto" style="--spine:${v.color||'#C7CCC4'}">
+    ${subj?`<div class="bk-subj">${esc(subj)}</div>`:""}
+    <div class="bk-t">${esc(v.title)}</div>
+    ${gs?`<div class="bk-gs">${esc(gs)}</div>`:""}
+  </div></div>`; }
 // 작은 썸네일(리스트 행): 프레임리스.
 function miniThumb(v){ return v.cover
-  ? `<img src="${v.cover}" alt="${esc(v.title)}" loading="lazy">`
+  ? `<img src="${v.cover}" alt="${esc(v.title)}" loading="lazy" draggable="false">`
   : `<div class="mini-ph"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="5" y="3" width="14" height="18" rx="2" stroke="#B7BCB4" stroke-width="1.6"/><path d="M9 7.5h6M9 11h6M9 14.5h4" stroke="#C7CCC4" stroke-width="1.6" stroke-linecap="round"/></svg></div>`; }
-function favBtn(id){ const on=state.favs.has(id); return `<button class="fav-btn" data-fav="${id}" title="즐겨찾기" style="background:${on?'#FFF2DD':'rgba(255,255,255,.94)'};"><span style="font-size:18px;line-height:1;color:${on?'#F19A2F':'#C6CBC3'};">★</span></button>`; }
+function favBtn(id){ const on=state.favs.includes(id); return `<button class="fav-btn" data-fav="${id}" title="즐겨찾기" style="background:${on?'#FFF2DD':'rgba(255,255,255,.94)'};"><span style="font-size:18px;line-height:1;color:${on?'#F19A2F':'#C6CBC3'};">★</span></button>`; }
 const gameBadge=v=>v.game?`<span class="game-badge">게임</span>`:"";
 
 function volCardGrid(v){ return `<div class="card" data-open="${v.id}">
@@ -53,7 +62,7 @@ function volRow(v){ return `<div class="row" data-open="${v.id}">
   <div class="r-main"><div class="r-title">${esc(v.title)}</div>
     <div class="r-meta">${metaText(v)}${v.game?'<span class="gtag">게임</span>':''}</div></div>
   <div class="r-actions">
-    <button class="rfav" data-fav="${v.id}" title="즐겨찾기"><span style="font-size:17px;color:${state.favs.has(v.id)?'#F19A2F':'#C6CBC3'};">★</span></button>
+    <button class="rfav" data-fav="${v.id}" title="즐겨찾기"><span style="font-size:17px;color:${state.favs.includes(v.id)?'#F19A2F':'#C6CBC3'};">★</span></button>
     ${v.game?`<button class="act game" data-game="${v.id}">게임</button>`:''}
     <button class="act primary" data-open="${v.id}">열기</button></div></div>`; }
 const renderCollection=(vols,view)=>view==="grid"?`<div class="grid">${vols.map(volCardGrid).join("")}</div>`:`<div class="rows">${vols.map(volRow).join("")}</div>`;
@@ -66,7 +75,7 @@ function render(){
   document.querySelectorAll("#vtoggle button").forEach(b=>b.classList.toggle("on",b.dataset.view===state.view));
 
   // 즐겨찾기(흰 배경 카드 스트립). 검색/필터 중엔 접어 결과 우선.
-  const favVols=[...state.favs].map(volById).filter(Boolean);
+  const favVols=state.favs.map(volById).filter(Boolean);
   document.getElementById("favSection").style.display=contentActive?"none":"block";
   document.getElementById("favCount").textContent=favVols.length;
   document.getElementById("favArea").innerHTML=favVols.length
@@ -98,9 +107,45 @@ function bind(){
   document.getElementById("searchInput").addEventListener("input",e=>{state.q=e.target.value;render();});
   document.getElementById("resetBtn").addEventListener("click",resetAll);
   document.getElementById("vtoggle").addEventListener("click",e=>{const b=e.target.closest("[data-view]");if(b){state.view=b.dataset.view;persist();render();}});
+  document.getElementById("abToggle").addEventListener("click",e=>{const b=e.target.closest("[data-layout]");if(b){state.layout=b.dataset.layout;persist();applyLayout();}});
+  document.getElementById("sideToggle").addEventListener("click",()=>{state.sidebarCollapsed=true;persist();applyLayout();});
+  document.getElementById("sideReopen").addEventListener("click",()=>{state.sidebarCollapsed=false;persist();applyLayout();});
+  document.getElementById("searchBtn").addEventListener("click",()=>{const i=document.getElementById("searchInput");state.q=i.value;render();i.focus();});
+  bindFavDrag();
   document.body.addEventListener("click",onClick);
 }
+// 즐겨찾기 드래그 순서변경(포인터 기반: 마우스+터치)
+function bindFavDrag(){
+  const area=document.getElementById("favArea"); let drag=null;
+  area.addEventListener("pointerdown",e=>{
+    const card=e.target.closest(".card"); if(!card||e.target.closest("[data-fav],[data-game]"))return;
+    drag={id:card.dataset.open,x0:e.clientX,y0:e.clientY,moved:false,card,overId:null,before:false};
+    try{card.setPointerCapture(e.pointerId);}catch{}
+  });
+  area.addEventListener("pointermove",e=>{
+    if(!drag)return;
+    if(!drag.moved&&Math.hypot(e.clientX-drag.x0,e.clientY-drag.y0)>6){drag.moved=true;drag.card.classList.add("dragging");}
+    if(!drag.moved)return; e.preventDefault();
+    const cards=[...area.querySelectorAll(".card")]; cards.forEach(c=>c.classList.remove("drop-before","drop-after"));
+    const over=cards.find(c=>{if(c===drag.card)return false;const r=c.getBoundingClientRect();return e.clientX>=r.left&&e.clientX<=r.right;});
+    if(over){const r=over.getBoundingClientRect();drag.before=e.clientX<r.left+r.width/2;drag.overId=over.dataset.open;over.classList.add(drag.before?"drop-before":"drop-after");}
+    else drag.overId=null;
+  });
+  const end=()=>{
+    if(!drag)return; const d=drag; drag=null; d.card.classList.remove("dragging");
+    area.querySelectorAll(".card").forEach(c=>c.classList.remove("drop-before","drop-after"));
+    if(!d.moved)return;                       // 짧은 탭 → 클릭(교재 열기) 유지
+    suppressClick=true; setTimeout(()=>suppressClick=false,0);
+    if(d.overId&&d.overId!==d.id){
+      const arr=state.favs.slice(); const from=arr.indexOf(d.id); if(from>=0)arr.splice(from,1);
+      let to=arr.indexOf(d.overId); if(to<0)to=arr.length; if(!d.before)to+=1;
+      arr.splice(to,0,d.id); state.favs=arr; persist(); render();
+    }
+  };
+  area.addEventListener("pointerup",end); area.addEventListener("pointercancel",end);
+}
 function onClick(e){
+  if(suppressClick)return;                    // 드래그 직후 클릭 무시
   const fav=e.target.closest("[data-fav]"); if(fav){e.stopPropagation();toggleFav(fav.dataset.fav);return;}
   const game=e.target.closest("[data-game]"); if(game){e.stopPropagation();const v=volById(game.dataset.game);if(v)openGame(v);return;}
   const chip=e.target.closest("[data-chip]"); if(chip){const k=chip.dataset.chip;if(k==="q")state.q="";else state.f[k]="";syncControls();render();return;}
@@ -114,4 +159,8 @@ function toast(msg,icon="▶"){ const a=document.getElementById("toastArea");
   a.innerHTML=`<div style="position:fixed;left:50%;bottom:60px;transform:translateX(-50%);background:#222824;color:#fff;padding:14px 22px;border-radius:12px;font-size:14.5px;font-weight:600;box-shadow:0 12px 34px rgba(0,0,0,.32);animation:toastIn .22s ease;display:flex;align-items:center;gap:10px;z-index:80;white-space:nowrap;"><span style="color:#AEE289;font-size:16px;">${icon}</span>${esc(msg)}</div>`;
   clearTimeout(toastTimer); toastTimer=setTimeout(()=>a.innerHTML="",2200); }
 
-(async function init(){ const cat=await loadCatalog(); VOLS=(cat.books||[]).filter(b=>!b.hidden); bind(); render(); })();
+(async function init(){ const cat=await loadCatalog(); VOLS=(cat.books||[]).filter(b=>!b.hidden);
+  // 미리보기 스위치: ?nocover=1(전체 무표지) / ?nocover=교과|연산|사고력|경시(해당 과목만). 파라미터 없으면 정상 표시.
+  const nc=new URLSearchParams(location.search).get("nocover");
+  if(nc) VOLS.forEach(v=>{ if(nc==="1"||nc===v.subject) v.cover=""; });
+  bind(); applyLayout(); render(); })();
