@@ -1,0 +1,58 @@
+<svg id="soma-char" viewBox="0 0 1160 1014" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 소마챔스 게임기 캐릭터 — Figma 359:3330 대기 포즈 기준. 파츠별 id로 GSAP 제어. -->
+  <g id="character">
+    <!-- 오른팔 (몸통 뒤 레이어) : 어깨=(322,669) 손=(86,847) -->
+    <g id="arm-right" filter="url(#armR-shadow)">
+      <path d="M322.402 669.26C306.118 783.533 200.281 862.969 86.0077 846.685" stroke="#F19A2F" stroke-width="48" stroke-linecap="round"/>
+      <circle cx="86.0078" cy="846.685" r="60" transform="rotate(8.10999 86.0078 846.685)" fill="#F19A2F"/>
+    </g>
+
+    <!-- 몸통 : 진한 주황 뒷면(rect) + 밝은 주황 앞면(path) -->
+    <g id="body">
+      <rect id="body-back" x="53.8887" y="217" width="836" height="836" rx="227" transform="rotate(-18 53.8887 217)" fill="#F19A2F"/>
+    </g>
+
+    <!-- 얼굴 (눈+입 묶음: 시선이동 시 이 그룹만 이동) -->
+    <g id="face">
+      <g id="eye">
+        <circle id="eye-left" cx="326.587" cy="702.248" r="32.175" fill="black" fill-opacity="0.78"/>
+        <circle id="eye-right" cx="476.737" cy="702.248" r="32.175" fill="black" fill-opacity="0.78"/>
+      </g>
+      <path id="mouth" d="M403.691 760.511C419.539 760.511 432.387 747.793 432.387 732.104H374.994C374.994 747.793 387.842 760.511 403.691 760.511Z" fill="black" fill-opacity="0.78"/>
+    </g>
+
+    <!-- 왼팔 (몸통 앞 레이어) : 어깨=(584,812) 손=(294,868) -->
+    <g id="arm-left" filter="url(#armL-shadow)">
+      <path d="M584.13 811.873C519.42 907.456 389.477 932.485 293.894 867.775" stroke="#F19A2F" stroke-width="48" stroke-linecap="round"/>
+      <circle cx="293.892" cy="867.775" r="60" transform="rotate(34.0978 293.892 867.775)" fill="#F19A2F"/>
+      <path d="M205.603 880.459C216.749 863.995 239.132 859.684 255.596 870.83" stroke="#F19A2F" stroke-width="17" stroke-linecap="round"/>
+    </g>
+  </g>
+  <!-- 머리 좌상단 반짝이 (svg 미러로 좌측 표시) -->
+  <g id="sparkle" transform="translate(760 175) scale(1.7)">
+    <path fill="#FFFFFF" d="M50.794 4.06721C45.449 -1.99829 35.7573 -1.15037 31.5468 5.75113L21.2336 22.6557C20.606 23.6843 19.8272 24.6125 18.9232 25.4091L4.06628 38.5011C-1.99922 43.8461 -1.1513 53.5378 5.7502 57.7484L22.6548 68.0616C23.6834 68.6891 24.6116 69.468 25.4082 70.372L38.5002 85.2289C43.8452 91.2944 53.5369 90.4464 57.7474 83.5449L68.0607 66.6404C68.6882 65.6118 69.4671 64.6836 70.371 63.887L85.2279 50.7949C91.2934 45.45 90.4455 35.7582 83.544 31.5477L66.6394 21.2345C65.6108 20.607 64.6826 19.8281 63.886 18.9241L50.794 4.06721Z"/>
+  </g>
+
+  <defs>
+    <filter id="armR-shadow" x="0" y="631.257" width="372.404" height="313.436" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="bg"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="12"/>
+      <feGaussianBlur stdDeviation="13"/>
+      <feComposite in2="hardAlpha" operator="out"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.266667 0 0 0 0 0.266667 0 0 0 0 0.266667 0 0 0 0.26 0"/>
+      <feBlend mode="normal" in2="bg" result="d1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="d1" result="shape"/>
+    </filter>
+    <filter id="armL-shadow" x="171.102" y="773.871" width="463.031" height="191.91" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="bg"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="12"/>
+      <feGaussianBlur stdDeviation="13"/>
+      <feComposite in2="hardAlpha" operator="out"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.266667 0 0 0 0 0.266667 0 0 0 0 0.266667 0 0 0 0.36 0"/>
+      <feBlend mode="normal" in2="bg" result="d1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="d1" result="shape"/>
+    </filter>
+  </defs>
+</svg>

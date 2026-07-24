@@ -1,5 +1,5 @@
 {
   "redirects": [
-    { "source": "/", "destination": "/login/", "permanent": false }
+    { "source": "/", "destination": "/dashboard/", "permanent": false }
   ]
 }
