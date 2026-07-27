@@ -213,3 +213,89 @@ body{font-family:var(--sans);color:var(--ink);background:#fff;-webkit-font-smoot
   .shelf{margin-left:0;}
   .elephant{opacity:.85;}
 }
+
+/* ── 검색결과 버텀시트 (Figma 484-20580) ── */
+.sheet-scrim{position:fixed;inset:0;z-index:55;background:rgba(20,22,20,.35);opacity:0;transition:opacity .3s ease;}
+.sheet-scrim.on{opacity:1;}
+.sheet{position:fixed;left:50%;bottom:0;z-index:56;width:min(1200px,96vw);height:88vh;
+  background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -12px 44px rgba(34,40,36,.18);
+  display:flex;flex-direction:column;transform:translate(-50%,100%);
+  transition:transform .38s cubic-bezier(.22,1,.36,1);}
+.sheet.on{transform:translate(-50%,0);}
+.sheet-handle{width:48px;height:5px;border-radius:99px;background:#D9D9D4;margin:10px auto 4px;flex:none;cursor:grab;}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;padding:14px 28px 12px;flex:none;}
+.sheet-title{font-size:20px;font-weight:800;color:#222824;}
+.sheet-title span{margin-left:4px;font-size:16px;font-weight:700;color:#8C918B;}
+.sheet-title b{color:#F19A2F;}
+.sheet-view{display:inline-flex;border:1.5px solid #DEDED8;border-radius:10px;overflow:hidden;background:#fff;}
+.sheet-view button{width:38px;height:34px;display:inline-flex;align-items:center;justify-content:center;border:0;background:#fff;color:#9AA09A;cursor:pointer;}
+.sheet-view button.on{background:#F19A2F;color:#fff;}
+.sheet-list{flex:1;overflow-y:auto;padding:0 28px 24px;-webkit-overflow-scrolling:touch;}
+
+/* 리스트 행 (comp1 484-10672) */
+.sr-row{display:flex;gap:14px;align-items:center;border-bottom:1px solid #DDD;padding:10px 0;}
+.sr-title{flex:1;min-width:0;font-size:16px;color:rgba(0,0,0,.58);letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sr-meta{flex:none;display:flex;gap:8px;font-size:14px;color:rgba(0,0,0,.58);letter-spacing:-.3px;white-space:nowrap;}
+.sr-pagewrap{flex:none;display:flex;align-items:center;gap:5px;}
+.sr-page{width:65px;height:32px;border:2px solid #DDD;border-radius:4px;text-align:center;font-size:16px;color:rgba(0,0,0,.58);background:#fff;}
+.sr-punit{font-size:16px;color:rgba(0,0,0,.38);letter-spacing:-.3px;white-space:nowrap;}
+.sr-punit i{margin:0 3px;color:rgba(0,0,0,.3);font-style:normal;}
+.sr-punit b{color:rgba(0,0,0,.78);font-weight:400;}
+.sr-star{width:32px;height:32px;flex:none;border:1px solid #DDD;border-radius:8px;background:#fff;color:#DDD;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;}
+.sr-star.on{color:#F19A2F;border-color:#F19A2F;}
+.sr-go{width:32px;height:32px;flex:none;border:0;border-radius:8px;background:#F19A2F;color:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;}
+
+/* 그리드 뷰 */
+.sheet-list.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:20px;align-content:start;padding-top:14px;}
+.sr-card{cursor:pointer;}
+.sr-card .cover{position:relative;width:100%;aspect-ratio:247/309;border:3px solid #fff;border-radius:4px 8px 8px 4px;overflow:hidden;background:#fff;box-shadow:0 8px 18px rgba(34,40,36,.14);}
+.sr-card .cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.sr-card .cap{margin-top:8px;font-size:13px;color:rgba(0,0,0,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+body.sheet-open{overflow:hidden;}
+
+/* ── 교재 카탈로그 버텀시트 (Figma 484-23598) ── */
+.sheet.catalog{width:min(1240px,96vw);}
+.cat-head{flex:none;padding:16px 32px 12px;}
+.cat-brand{display:flex;align-items:center;gap:8px;}
+.cat-logo-img{height:30px;width:auto;display:block;}
+.cat-logo{font-family:"CookieRunOTF","CookieRun",sans-serif;font-weight:700;font-size:24px;color:rgba(0,0,0,.78);letter-spacing:-.5px;line-height:1;}
+.cat-total{font-family:"CookieRunOTF","CookieRun",sans-serif;font-size:18px;font-weight:400;color:rgba(0,0,0,.38);letter-spacing:0;}
+.cat-total b{color:#F19A2F;font-weight:700;}
+.cat-body{flex:1;overflow-y:auto;padding:0 28px 28px;-webkit-overflow-scrolling:touch;}
+.cat-sub{display:grid;grid-template-columns:300px 1fr;gap:28px;padding:22px 0;border-top:1px solid #EEE;}
+.cat-sub:first-child{border-top:0;}
+/* 좌측 하위 시리즈 카드 (comp 484-13530) */
+.cat-card{position:sticky;top:8px;align-self:start;}   /* 스크롤 시 해당 시리즈 구간 동안 상단 고정 */
+.cat-card-h{display:flex;align-items:baseline;gap:8px;margin-bottom:12px;}
+.cat-card-h b{font-family:"CookieRunOTF","CookieRun",sans-serif;font-size:18px;font-weight:700;color:rgba(0,0,0,.78);}
+.cat-card-h .count{font-family:"CookieRunOTF","CookieRun",sans-serif;font-size:18px;font-weight:700;color:#F19A2F;}
+.cat-card-h .count i{color:rgba(0,0,0,.78);font-style:normal;}
+/* 교재 섬네일: rounded-8 #ddd 박스에 커버 contain (Figma ThumbRay) */
+.cat-card-cover{width:112px;height:140px;border:1px solid #DDD;border-radius:8px;overflow:hidden;background:#DDD;display:flex;align-items:center;justify-content:center;padding:1px;box-shadow:none;}
+.cat-card-cover img{width:100%;height:100%;object-fit:contain;display:block;}
+.cat-card-desc{margin-top:14px;max-width:220px;font-size:14px;line-height:1.5;letter-spacing:-.3px;color:rgba(0,0,0,.58);}
+.cat-card-tags{margin-top:12px;font-size:14px;color:rgba(0,0,0,.38);letter-spacing:-.3px;}
+.cat-card-tags span{margin-right:8px;}
+/* 우측 레벨 그룹 목록 */
+.cat-sub-groups{min-width:0;}
+.cat-lv-bar{border-top:2px solid #F19A2F;background:#F7F7F7;padding:6px 16px;font-size:14px;font-weight:700;color:rgba(0,0,0,.55);}
+.cat-row{display:flex;gap:14px;align-items:center;border-bottom:1px solid #DDD;padding:10px 12px;}
+.cat-row-title{flex:1;min-width:0;display:flex;align-items:center;gap:8px;font-size:16px;color:rgba(0,0,0,.6);letter-spacing:-.3px;white-space:nowrap;overflow:hidden;}
+.cat-row-title .name{overflow:hidden;text-overflow:ellipsis;}
+.cat-badge{flex:none;height:20px;display:inline-flex;align-items:center;font-size:13px;font-weight:400;color:#527C47;background:rgba(77,182,97,.2);border-radius:99px;padding:0 8px;letter-spacing:-.3px;}
+.cat-row-meta{flex:none;display:flex;gap:8px;font-size:14px;color:rgba(0,0,0,.58);letter-spacing:-.3px;white-space:nowrap;}
+.cat-page{flex:none;display:flex;align-items:center;gap:5px;}
+.cat-page input{width:65px;height:32px;border:2px solid #DDD;border-radius:4px;text-align:center;font-size:16px;color:rgba(0,0,0,.58);background:#fff;}
+.cat-page .u{font-size:16px;color:rgba(0,0,0,.38);letter-spacing:-.3px;white-space:nowrap;}
+.cat-page .u i{margin:0 3px;color:rgba(0,0,0,.3);font-style:normal;}
+.cat-page .u b{color:rgba(0,0,0,.78);font-weight:400;}
+.cat-star{width:32px;height:32px;flex:none;border:1px solid #DDD;border-radius:8px;background:#fff;color:#DDD;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;}
+.cat-star.on{color:#F19A2F;border-color:#F19A2F;}
+.cat-go{width:32px;height:32px;flex:none;border:0;border-radius:8px;background:#F19A2F;color:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;}
+
+/* 준비중 토스트 (흰색 카드) */
+.toast{position:fixed;left:50%;bottom:40px;transform:translate(-50%,12px);z-index:60;
+  background:#fff;color:#3A403A;box-shadow:0 10px 30px rgba(34,40,36,.18);
+  border-radius:14px;padding:12px 20px;font-size:15px;font-weight:600;letter-spacing:-.3px;
+  opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease;}
+.toast.on{opacity:1;transform:translate(-50%,0);}

@@ -217,6 +217,23 @@
       if(winner.eye) tl.to(winner.eye,{ scaleY:0.12, duration:.08, svgOrigin:winner.ep, yoyo:true, repeat:1 }, L+"+=0.12");
     }
 
+    // 정면 정착 오프셋(로컬 SVG 단위). char1은 CSS scaleX(-1) 미러라 화면과 부호 반대(+x=화면 왼쪽).
+    const FRONT={ c1FaceX:48, c2FaceX:16 };
+    // 마지막: 둘 다 정면 보고 웃음. 얼굴(눈코입)만 이동해 정면 느낌(묵찌빠 손은 이동 안 함).
+    function frontSmileBoth(pos){
+      const L=pos.label; tl.addLabel(L, pos.at);
+      // 입 둘 다 웃음(정상)으로
+      tl.to(RC1.mouth,{ scaleY:1, svgOrigin:RC1.mp, duration:0.3, ease:"power2.inOut" }, L)
+        .to(RC2.mouth,{ scaleY:1, svgOrigin:RC2.mp, duration:0.3, ease:"power2.inOut" }, L);
+      // 얼굴 정면 이동: char1=화면 왼쪽(+x, 미러), char2=화면 오른쪽(+x)
+      tl.to("#face",{ x:FRONT.c1FaceX, duration:0.5, ease:"power2.out" }, L)
+        .to(["#c2-eyes","#c2-mouth"],{ x:FRONT.c2FaceX, duration:0.5, ease:"power2.out" }, L);
+      // 정면 정착 hop(둘 다) + char1 눈 깜빡(웃음 강조)
+      tl.to(["#gameChar","#gameChar2"],{ scaleY:1, y:0, duration:0.12, ease:"power2.out" }, L)
+        .fromTo(["#gameChar","#gameChar2"],{ scaleY:1.06 },{ scaleY:1, duration:0.5, ease:"elastic.out(1,0.5)" }, ">");
+      tl.to(RC1.eye,{ scaleY:0.12, duration:.08, svgOrigin:RC1.ep, yoyo:true, repeat:1 }, L+"+=0.15");
+    }
+
     // ── 라운드1: char1 묵묵찌빠(승) / char2 묵찌빠묵(패=슬픔) ──
     gsap.set(["#fingers-jji","#fingers-ppa","#c2-fingers-jji","#c2-fingers-ppa"],{ opacity:0 }); // 둘 다 묵
     tl.addLabel("b1", ">+0.15");
@@ -228,12 +245,13 @@
     // ── 라운드2: 3초 후, 시퀀스 스왑 → char2 승 → 표정 반대 ──
     tl.addLabel("r2", ">+3");
     tl.to(["#fingers-jji","#fingers-ppa","#c2-fingers-jji","#c2-fingers-ppa"],{ opacity:0, duration:0.1 }, "r2") // 둘 다 주먹 리셋
-      .to(["#gameChar","#gameChar2"],{ scaleY:1, y:0, duration:0.3, ease:"power2.out" }, "r2");                   // 자세 정렬(재대결 준비)
+      .to(["#gameChar","#gameChar2"],{ scaleY:1, y:0, duration:0.3, ease:"power2.out" }, "r2")                    // 자세 정렬(재대결 준비)
+      .to([RC1.mouth,RC2.mouth],{ scaleY:1, duration:0.2 }, "r2");                                                // 입 웃음으로 리셋(라운드1 슬픔 해제)
     const r2b1=tl.labels.r2+0.4;
     tl.addLabel("b5", r2b1).addLabel("b6", r2b1+beat).addLabel("b7", r2b1+2*beat).addLabel("b8", r2b1+3*beat);
     playBeats(r2b1, [ {jji:0,ppa:0},{jji:1,ppa:0},{jji:0,ppa:1},{jji:0,ppa:0} ],   // char1 묵찌빠묵
                     [ {jji:0,ppa:0},{jji:0,ppa:0},{jji:1,ppa:0},{jji:0,ppa:1} ]);  // char2 묵묵찌빠
-    frontReact({ label:"front2", at:">+0.25" }, 'c1');   // char1 패(슬픔)·char2 승(웃음 복구)
+    frontSmileBoth({ label:"front2", at:">+0.25" });   // 마지막: 둘 다 정면 보고 웃음
 
     charTL=tl; window.charTL=tl;
     if(typeof startIdle==="function") tl.eventCallback("onComplete", startIdle);

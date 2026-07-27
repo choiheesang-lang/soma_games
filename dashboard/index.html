@@ -167,7 +167,7 @@
           <!-- 삼각형 몸통 + 얼굴 + 흰 삼각 마크 -->
           <g>
             <path d="M434.701 341.205C467.154 332.509 476.867 291.182 451.684 268.94L259.464 99.1753C236.835 79.1903 201.148 88.7966 191.61 117.44L110.71 360.388C100.108 392.224 129.169 423.072 161.58 414.387L434.701 341.205Z" fill="#5AB725"/>
-            <g>
+            <g id="c2-eyes">
               <circle cx="158.766" cy="208.641" r="12.0656" transform="rotate(-15 158.766 208.641)" fill="black" fill-opacity="0.78"/>
               <circle cx="213.154" cy="194.068" r="12.0656" transform="rotate(-15 213.154 194.068)" fill="black" fill-opacity="0.78"/>
             </g>
@@ -300,6 +300,32 @@
         </p>
       </div>
     </div>
+
+    <!-- ── 검색결과 버텀시트 (Figma 484-20580) ── -->
+    <div class="sheet-scrim" id="sheetScrim" hidden></div>
+    <div class="sheet" id="resultSheet" role="dialog" aria-modal="true" aria-label="검색결과" aria-hidden="true">
+      <div class="sheet-handle" id="sheetHandle"></div>
+      <div class="sheet-head">
+        <div class="sheet-title">검색결과 <span>총 <b id="sheetCount">0</b> 건</span></div>
+        <div class="sheet-view" id="sheetView">
+          <button type="button" data-v="list" class="on" aria-label="리스트"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+          <button type="button" data-v="grid" aria-label="그리드"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="7" height="7" rx="1.5" fill="currentColor"/><rect x="13" y="4" width="7" height="7" rx="1.5" fill="currentColor"/><rect x="4" y="13" width="7" height="7" rx="1.5" fill="currentColor"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="currentColor"/></svg></button>
+        </div>
+      </div>
+      <div class="sheet-list" id="sheetList"></div>
+    </div>
+
+    <!-- ── 교재 카탈로그 버텀시트 (Figma 484-23598) ── -->
+    <div class="sheet catalog" id="catalogSheet" role="dialog" aria-modal="true" aria-label="교재 카탈로그" aria-hidden="true">
+      <div class="sheet-handle" id="catHandle"></div>
+      <div class="cat-head">
+        <div class="cat-brand"><img class="cat-logo-img" id="catLogoImg" src="assets/ray-logo.png" alt="" width="59" height="32"><span class="cat-logo" id="catLogo">레이</span> <span class="cat-total">총 <b id="catTotal">0</b>개</span></div>
+      </div>
+      <div class="cat-body" id="catBody"></div>
+    </div>
+
+    <!-- 준비중 토스트 -->
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   </div>
 
