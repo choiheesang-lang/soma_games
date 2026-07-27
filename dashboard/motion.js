@@ -109,14 +109,14 @@
   // ══════════════════════════════════════════════════════════════
   const CFG = {
     // SVG 관절 기준점(1160×1014 좌표계)
-    origin:{ bodyBottom:"455 950", shoulderR:"322 669", shoulderL:"584 812" },
+    origin:{ bodyBottom:"455 950", shoulderR:"322 669", shoulderL:"640 850" },   // shoulderL = 캡슐 든 왼팔 어깨
     peek:{   tilt:5, sway:4, swayDur:.40, anticipShift:8, anticipDur:.15 },
     flyIn:{  dur:.9,  ease:"power3.inOut", stretchX:1.15, stretchY:.88 },
     land:{   squashDur:.12, sqX:1.22, sqY:.80, overDur:.16, ovX:.95, ovY:1.06,
              settleDur:.55, settleEase:"elastic.out(1, 0.5)" },
-    arm:{    followDelay:.09, upR:-7, upL:9, outEase:"back.out(2.5)", backEase:"back.out(2)" },
+    arm:{    followDelay:.09, upR:-7, upL:-5, outEase:"back.out(2.5)", backEase:"back.out(2)" },   // upL: 미러 래퍼로 부호 반전(시각 동일)·캡슐 과도 스윙 방지
     // 묵찌빠 스윙(착지 직후 1회, 단일 관절=어깨). "스으윽 딱" = 준비(반동)→가속 글라이드→급정지.
-    play:{   ready:-10, swingDown:18, restSwing:4,
+    play:{   ready:-10, swingDown:18, restSwing:4,   // 팔 배치 scale 2(내부 미러 제거)로 부호 원복 — 화면상 준비(위)→스윙(아래)
              riseDur:0.22, glideDur:0.85, hold:0.10, glideEase:"power3.in", squashY:0.975 },
     // char2(녹색): char1과 동일 타이밍(charTL)로 팔 스윙+손 토글. 어깨 피벗·등장 슬라이드 시작(오른쪽 밖).
     play2:{  ready:-8, swingDown:16, restSwing:3, pivot:"154.86 269.18", slideFrom:0.35 },

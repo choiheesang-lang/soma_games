@@ -29,7 +29,21 @@
         <select class="nsel" aria-label="부서">
           <option>교재 기획 개발실</option><option>디지털 사업본부</option><option>영업 지원팀</option>
         </select>
-        <div class="who"><div class="av">홍</div><span><b>홍길동</b> 님</span></div>
+        <div class="who-wrap">
+          <button type="button" class="who" id="whoBtn" aria-haspopup="menu" aria-expanded="false">
+            <div class="av">홍</div><span><b>홍길동</b> 님</span>
+          </button>
+          <div class="who-menu" id="whoMenu" role="menu">
+            <button type="button" role="menuitem" data-m="curation">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4a1 1 0 0 0-1-1H6.5A2.5 2.5 0 0 0 4 5.5v14z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              교재 큐레이션
+            </button>
+            <button type="button" role="menuitem" data-m="mode">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="12" rx="6" stroke="currentColor" stroke-width="1.8"/><circle cx="15.5" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/></svg>
+              모드설정
+            </button>
+          </div>
+        </div>
         <button class="logout-ic" id="logoutBtn" aria-label="로그아웃" title="로그아웃">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 12H4M4 12l3.5-3.5M4 12l3.5 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 5.5V5a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5a2 2 0 0 1-2-2v-.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
@@ -49,9 +63,20 @@
           검색
         </button>
       </div>
-      <div class="vtoggle" id="vtoggle">
-        <button data-view="list" aria-label="리스트"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
-        <button class="on" data-view="grid" aria-label="그리드"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="7" height="7" rx="1.5" fill="currentColor"/><rect x="13" y="4" width="7" height="7" rx="1.5" fill="currentColor"/><rect x="4" y="13" width="7" height="7" rx="1.5" fill="currentColor"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="currentColor"/></svg></button>
+      <button type="button" class="fav-btn" id="favBtn" aria-expanded="false">
+        <span class="fav-btn-ic"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 2.6l2.9 5.88 6.49.94-4.7 4.58 1.11 6.46L12 17.97 6.2 20.46l1.11-6.46-4.7-4.58 6.49-.94L12 2.6z" fill="currentColor"/></svg></span>즐겨찾기
+      </button>
+    </div>
+
+    <!-- ── 즐겨찾기 패널 (Figma 539-22450 + 301-11913) ── -->
+    <div class="fav-panel" id="favPanel">
+      <div class="fav-panel-in">
+        <div class="fav-head">
+          <span class="fav-head-ic"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 2.6l2.9 5.88 6.49.94-4.7 4.58 1.11 6.46L12 17.97 6.2 20.46l1.11-6.46-4.7-4.58 6.49-.94L12 2.6z" fill="currentColor"/></svg></span>
+          <span class="fav-head-t">즐겨찾기</span>
+          <b class="fav-count" id="favCount">0</b>
+        </div>
+        <div class="fav-body" id="favBody"></div>
       </div>
     </div>
     </div><!-- /.topbar -->
@@ -72,17 +97,41 @@
 
       <!-- 가로 책꽂이 -->
       <div class="shelf-wrap"><div class="shelf" id="shelf"></div></div>
-    </main>
 
-    <!-- 게임기 캐릭터 (앱 레벨: 상단바 아래·스테이지 위 z-index로 GNB 카드 뒤 매달림) -->
+    <!-- 게임기 캐릭터 (스테이지 안: top%가 스테이지 높이 기준 → 화면 높이가 줄어도 구성 유지. z-index로 상단바 뒤·책 위) -->
       <div class="game-char" id="gameChar" aria-hidden="true">
         <svg id="soma-char" viewBox="0 0 1160 1014" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g id="character">
-            <!-- 묵찌빠 팔(몸통 뒤 레이어). 단일 관절: #arm-swing 하나만 어깨(로컬 25,19)에서 회전.
-                 배치 transform: 어깨(25,19)→(322.07,669.82)·손(129.5,123.5)→(80,839). scale(-2 2) 로컬 거울 + 전역 scaleX(-1) 상쇄(손 정방향).
-                 그림자는 transform 없는 래퍼(#arm-play-shadow)에서 루트 좌표계로 아래 캐스팅. 손=묵(주먹)/찌/빠 토글. -->
+            <!-- 구슬팔(맨 아래=몸 뒤, 화면 오른쪽): 캡슐(쌍기나무 탐정)을 들고 등장 (Figma 546-29574).
+                 미러 래퍼(중앙축 1160/2 반사)로 반대편 배치 — 내부 지오메트리·피벗은 로컬 좌표 유지.
+                 캡슐 로고: 전역 scaleX(-1) + 래퍼 flip = 이중 반전 상쇄 → 로컬 플립 불필요(정방향). -->
+            <g transform="translate(1160 0) scale(-1 1)">
+            <g id="arm-front" filter="url(#armFront-shadow)">
+              <!-- 왼→오: 팔(어깨→손) → 동그란 손 → 구슬 → 엄지(공 위에서 감싸기). Figma 560-28488 비율 -->
+              <path id="hold-arm" d="M640 850 C 800 838 880 800 1049 742" stroke="#F19A2F" stroke-width="36" stroke-linecap="round" fill="none"/>
+              <circle id="hold-palm" cx="1049" cy="742" r="45" fill="#F19A2F"/>
+              <g transform="translate(1185 640)"><image id="capsule-img" href="assets/capsule2.png" x="-230" y="-230" width="460" height="460"/></g>
+              <g id="hold-thumb" filter="url(#thumb-shadow)" transform="translate(1113 693) scale(2.6) rotate(0) translate(-11.75 -15.94)">
+                <path d="M19 9.376C15.8 5.376 7 11.042 3 14.376L12 24.876C15.667 21.376 22.2 13.376 19 9.376Z" fill="#F19A2F"/>
+              </g>
+            </g>
+            </g>
+            <g id="body">
+              <rect id="body-back" x="53.8887" y="217" width="836" height="836" rx="227" transform="rotate(-18 53.8887 217)" fill="#F19A2F"/>
+            </g>
+            <g id="face">
+              <g id="eye">
+                <circle id="eye-left" cx="326.587" cy="702.248" r="32.175" fill="black" fill-opacity="0.78"/>
+                <circle id="eye-right" cx="476.737" cy="702.248" r="32.175" fill="black" fill-opacity="0.78"/>
+              </g>
+              <path id="mouth" d="M403.691 760.511C419.539 760.511 432.387 747.793 432.387 732.104H374.994C374.994 747.793 387.842 760.511 403.691 760.511Z" fill="black" fill-opacity="0.78"/>
+            </g>
+            <!-- 묵찌빠 팔(맨 위=몸 앞, 화면 왼쪽). 단일 관절: #arm-swing이 어깨(로컬 25,19)에서 회전.
+                 미러 래퍼로 반대편 배치. 그림자는 transform 없는 래퍼(#arm-play-shadow)에 적용. 손=묵/찌/빠 토글. -->
+            <g transform="translate(1160 0) scale(-1 1)">
             <g id="arm-play-shadow" filter="url(#armPlay-shadow)">
-            <g id="arm-play" transform="translate(322.07 669.82) scale(-2 2) rotate(-10) translate(-25 -19)">
+            <g id="arm-play" transform="translate(322.07 669.82) scale(2 2) rotate(10) translate(-25 -19)">   <!-- 팔 전체 좌우 반전(어깨 고정): scale -2→2 -->
+
               <g id="arm-swing">
                 <path id="arm-bone" d="M25 19C25 52.1551 40.4405 81.7039 64.523 100.848C82.3614 115.028 104.941 123.5 129.5 123.5" stroke="#F19A2F" stroke-width="24" stroke-linecap="round"/>
                 <g id="hand">
@@ -102,20 +151,6 @@
               </g>
             </g>
             </g>
-            <g id="body">
-              <rect id="body-back" x="53.8887" y="217" width="836" height="836" rx="227" transform="rotate(-18 53.8887 217)" fill="#F19A2F"/>
-            </g>
-            <g id="face">
-              <g id="eye">
-                <circle id="eye-left" cx="326.587" cy="702.248" r="32.175" fill="black" fill-opacity="0.78"/>
-                <circle id="eye-right" cx="476.737" cy="702.248" r="32.175" fill="black" fill-opacity="0.78"/>
-              </g>
-              <path id="mouth" d="M403.691 760.511C419.539 760.511 432.387 747.793 432.387 732.104H374.994C374.994 747.793 387.842 760.511 403.691 760.511Z" fill="black" fill-opacity="0.78"/>
-            </g>
-            <!-- 단순 팔(몸통 앞 레이어). Figma Group126 위치(어깨 584,813·손 297,881)와 일치하는 원래 팔 복원. -->
-            <g id="arm-front" filter="url(#armFront-shadow)">
-              <path d="M584.13 811.873C519.42 907.456 389.477 932.485 293.894 867.775" stroke="#F19A2F" stroke-width="48" stroke-linecap="round"/>
-              <circle cx="293.892" cy="867.775" r="60" transform="rotate(34.0978 293.892 867.775)" fill="#F19A2F"/>
             </g>
           </g>
           <!-- 머리 좌상단 반짝이 (svg 미러로 좌측 표시). #character 밖 = 스쿼시 영향 없음 -->
@@ -123,8 +158,12 @@
             <path fill="#FFFFFF" d="M50.794 4.06721C45.449 -1.99829 35.7573 -1.15037 31.5468 5.75113L21.2336 22.6557C20.606 23.6843 19.8272 24.6125 18.9232 25.4091L4.06628 38.5011C-1.99922 43.8461 -1.1513 53.5378 5.7502 57.7484L22.6548 68.0616C23.6834 68.6891 24.6116 69.468 25.4082 70.372L38.5002 85.2289C43.8452 91.2944 53.5369 90.4464 57.7474 83.5449L68.0607 66.6404C68.6882 65.6118 69.4671 64.6836 70.371 63.887L85.2279 50.7949C91.2934 45.45 90.4455 35.7582 83.544 31.5477L66.6394 21.2345C65.6108 20.607 64.6826 19.8281 63.886 18.9241L50.794 4.06721Z"/>
           </g>
           <defs>
-            <!-- 앞 단순 팔 그림자(루트 좌표계, dy 아래로 정상 캐스팅) -->
-            <filter id="armFront-shadow" x="171" y="773" width="463" height="205" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <!-- 앞 왼팔+캡슐 그림자(루트 좌표계). 팔(615~)·볼(700~1160, y410~870) 전체 포함 -->
+            <!-- 엄지 전용 그림자: 공 위에서 잡고 있는 느낌(레퍼런스 Vector 199의 dd 필터 스케일업) -->
+            <filter id="thumb-shadow" x="-40%" y="-40%" width="200%" height="200%">
+              <feDropShadow dx="1" dy="8" stdDeviation="9" flood-color="#7A4A10" flood-opacity="0.34"/>
+            </filter>
+            <filter id="armFront-shadow" x="560" y="360" width="900" height="600" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
               <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
               <feOffset dy="12"/><feGaussianBlur stdDeviation="13"/>
               <feColorMatrix type="matrix" values="0 0 0 0 0.266667 0 0 0 0 0.266667 0 0 0 0 0.266667 0 0 0 0.26 0"/>
@@ -132,7 +171,7 @@
               <feBlend mode="normal" in="SourceGraphic" in2="d1"/>
             </filter>
             <!-- 묵찌빠(뒤) 팔 그림자: 루트 좌표계(transform 없는 #arm-play-shadow 래퍼에 적용) → dy 아래. 손이 왼쪽(x~20)까지 오므로 넉넉히 -->
-            <filter id="armPlay-shadow" x="-100" y="540" width="580" height="540" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <filter id="armPlay-shadow" x="150" y="540" width="720" height="620" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
               <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
               <feOffset dy="12"/><feGaussianBlur stdDeviation="13"/>
               <feColorMatrix type="matrix" values="0 0 0 0 0.266667 0 0 0 0 0.266667 0 0 0 0 0.266667 0 0 0 0.36 0"/>
@@ -255,6 +294,8 @@
           </defs>
         </svg>
       </div>
+    </main>
+
     <!-- ── 로그인 오버레이 (state1) ── -->
     <div class="login-overlay" id="loginOverlay">
       <!-- 상단 마퀴 티커 (텍스트 + 캐릭터 구분자, 심리스 루프용 2배 복제) -->
@@ -307,9 +348,21 @@
       <div class="sheet-handle" id="sheetHandle"></div>
       <div class="sheet-head">
         <div class="sheet-title">검색결과 <span>총 <b id="sheetCount">0</b> 건</span></div>
+        <div class="sheet-head-r">
+        <div class="dropdown dd-ps" id="sheetPs">
+          <button type="button" class="dd-trigger" aria-haspopup="listbox" aria-expanded="false"><span class="dd-label">20개</span><svg class="dd-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1.5L6 6.5L11 1.5" stroke="#7A7E7B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="dd-panel" role="listbox">
+            <div class="dd-opt sel" role="option" data-ps="20">20개</div>
+            <div class="dd-opt" role="option" data-ps="30">30개</div>
+            <div class="dd-opt" role="option" data-ps="50">50개</div>
+            <div class="dd-opt" role="option" data-ps="80">80개</div>
+          </div>
+        </div>
+        <nav class="sheet-pager" id="sheetPager" aria-label="페이지"></nav>
         <div class="sheet-view" id="sheetView">
           <button type="button" data-v="list" class="on" aria-label="리스트"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
           <button type="button" data-v="grid" aria-label="그리드"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="7" height="7" rx="1.5" fill="currentColor"/><rect x="13" y="4" width="7" height="7" rx="1.5" fill="currentColor"/><rect x="4" y="13" width="7" height="7" rx="1.5" fill="currentColor"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="currentColor"/></svg></button>
+        </div>
         </div>
       </div>
       <div class="sheet-list" id="sheetList"></div>
