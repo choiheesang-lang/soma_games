@@ -100,7 +100,8 @@ function initDropdowns(){
     });
   });
   document.addEventListener("click",e=>{ closeAllDropdowns(); closeWhoMenu();
-    if(!e.target.closest("#topbar")) closeFavPanel(); });   // GNB 밖 클릭 → 즐겨찾기 패널 닫기
+    // GNB·필 툴바 밖 클릭 → 즐겨찾기 패널 닫기 (툴바에 즐겨찾기 버튼이 있으므로 함께 예외)
+    if(!e.target.closest("#topbar") && !e.target.closest("#navPill")) closeFavPanel(); });
   document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ closeAllDropdowns(); closeWhoMenu(); closeFavPanel(); closeAnySheet(); } });
 }
 
@@ -108,8 +109,9 @@ function initDropdowns(){
 let favs=new Set(); try{ favs=new Set(JSON.parse(localStorage.getItem("soma_favs")||"[]")); }catch(e){}
 function saveFavs(){ try{ localStorage.setItem("soma_favs", JSON.stringify([...favs])); }catch(e){} }
 function sheetResults(){ const f=state.f, active=!!(f.grade||f.sem||f.year||f.subject||state.q.trim()); return active?VOLS.filter(matchVol):VOLS; }
-let sheetView="list";
-const SR_STAR='<svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 2.6l2.9 5.88 6.49.94-4.7 4.58 1.11 6.46L12 17.97 6.2 20.46l1.11-6.46-4.7-4.58 6.49-.94L12 2.6z" fill="currentColor"/></svg>';
+let sheetView="list";   // 리스트 전용(그리드 경로는 코드만 보존 — 디자인에서 뷰 토글 제거)
+// ★ 아이콘 — Figma 원본 경로(둥근 5각별, 484:10764). 행·즐겨찾기·필 툴바 공용
+const SR_STAR='<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path transform="translate(2.11 1.89)" fill="currentColor" d="M4.54155 0.836151C5.09177 -0.278718 6.68153 -0.278717 7.23175 0.836152L7.88879 2.16744C8.10728 2.61016 8.52963 2.91701 9.01819 2.988L10.4874 3.20149C11.7177 3.38026 12.209 4.89222 11.3187 5.76003L10.2556 6.79629C9.90205 7.1409 9.74073 7.6374 9.82418 8.12399L10.0751 9.58722C10.2853 10.8126 8.99916 11.747 7.89872 11.1685L6.58466 10.4776C6.14767 10.2479 5.62562 10.2479 5.18864 10.4776L3.87458 11.1685C2.77413 11.747 1.48799 10.8126 1.69815 9.58722L1.94912 8.12399C2.03257 7.6374 1.87125 7.1409 1.51772 6.79629L0.454621 5.76003C-0.435654 4.89222 0.0556119 3.38026 1.28594 3.20149L2.75511 2.988C3.24367 2.91701 3.66602 2.61016 3.88451 2.16744L4.54155 0.836151Z"/></svg>';
 const SR_CHEV='<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 function srRow(v){ return `<div class="sr-row" data-id="${v.id}">
     <div class="sr-title">${esc(v.title)}</div>
@@ -119,18 +121,20 @@ function srRow(v){ return `<div class="sr-row" data-id="${v.id}">
     <button class="sr-go" data-go="${v.id}" aria-label="열기">${SR_CHEV}</button>
   </div>`; }
 function srCard(v){ return `<div class="sr-card" data-go="${v.id}" title="${esc(v.title)}"><div class="cover">${coverInner(v)}</div><div class="cap">${esc(v.title)}</div></div>`; }
-// 페이지네이션: 번호형(현재±2 윈도 + … 생략 + ‹›). ~700권(35p) 대응. 페이지당 개수 10/20/30/50 선택 가능
+// 페이지네이션: 번호형(현재±2 윈도 + … 생략 + 화살표). 페이지당 20개 고정(디자인 590-42404: 개수 드롭다운 없음)
 let sheetPage=1, SHEET_PS=20;
+const PG_PREV='<svg width="6" height="10" viewBox="0 0 6 10" fill="none" aria-hidden="true"><path d="M5 1L1 5l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const PG_NEXT='<svg width="6" height="10" viewBox="0 0 6 10" fill="none" aria-hidden="true"><path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 function pagerHTML(total){
   const last=Math.max(1, Math.ceil(total/SHEET_PS));
   if(last<=1) return "";
   const p=Math.min(sheetPage,last), win=[];
   for(let i=Math.max(1,p-2); i<=Math.min(last,p+2); i++) win.push(i);
-  const parts=[`<button type="button" class="pg-nav" data-p="${p-1}" ${p===1?"disabled":""} aria-label="이전">‹</button>`];
+  const parts=[`<button type="button" class="pg-nav" data-p="${p-1}" ${p===1?"disabled":""} aria-label="이전">${PG_PREV}</button>`];
   if(win[0]>1){ parts.push(`<button type="button" data-p="1">1</button>`); if(win[0]>2) parts.push(`<span class="pg-ell">…</span>`); }
   win.forEach(i=>parts.push(`<button type="button" data-p="${i}" class="${i===p?'cur':''}">${i}</button>`));
   if(win[win.length-1]<last){ if(win[win.length-1]<last-1) parts.push(`<span class="pg-ell">…</span>`); parts.push(`<button type="button" data-p="${last}">${last}</button>`); }
-  parts.push(`<button type="button" class="pg-nav" data-p="${p+1}" ${p===last?"disabled":""} aria-label="다음">›</button>`);
+  parts.push(`<button type="button" class="pg-nav" data-p="${p+1}" ${p===last?"disabled":""} aria-label="다음">${PG_NEXT}</button>`);
   return parts.join("");
 }
 function renderSheet(){ const res=sheetResults();
@@ -148,12 +152,14 @@ function openSheet(){ sheetPage=1; renderSheet();
   scr.hidden=false; sh.setAttribute("aria-hidden","false"); document.body.classList.add("sheet-open");
   void sh.offsetHeight;   // 강제 리플로우 → 닫힘 상태 커밋 후 전이 시작(rAF 의존 X)
   scr.classList.add("on"); sh.classList.add("on");
+  const sb=document.getElementById("searchOpenBtn"); if(sb) sb.classList.add("on");   // press 상태
 }
 function closeSheet(){
   const scr=document.getElementById("sheetScrim"), sh=document.getElementById("resultSheet");
   if(!sh || !sh.classList.contains("on")) return;
   scr.classList.remove("on"); sh.classList.remove("on"); sh.setAttribute("aria-hidden","true");
   document.body.classList.remove("sheet-open");
+  const sb=document.getElementById("searchOpenBtn"); if(sb) sb.classList.remove("on");
   setTimeout(()=>{ scr.hidden=true; }, 340);
 }
 
@@ -239,7 +245,7 @@ function closeFavPanel(){
   if(!p || !p.classList.contains("open")) return;
   p.classList.remove("open");
   document.getElementById("topbar").classList.remove("fav-open");
-  if(b) b.setAttribute("aria-expanded","false");
+  if(b){ b.setAttribute("aria-expanded","false"); b.classList.remove("on"); }
 }
 function favItems(){
   return [...favs].map(id=>{
@@ -275,9 +281,26 @@ function renderFavPanel(){
 function bind(){
   const si=document.getElementById("searchInput");
   si.addEventListener("input",e=>{state.q=e.target.value;});               // 입력은 상태만(메인 불변)
-  const runSearch=()=>{ state.q=si.value; openSheet(); };                  // 검색 → 결과 버텀시트
+  // 검색 실행: 시트가 이미 열려 있으면(필터가 시트 안) 재검색만, 아니면 시트 열기
+  const runSearch=()=>{ state.q=si.value;
+    if(document.getElementById("resultSheet").classList.contains("on")){ sheetPage=1; renderSheet(); document.getElementById("sheetList").scrollTop=0; }
+    else openSheet();
+  };
   document.getElementById("searchBtn").addEventListener("click",runSearch);
+  document.getElementById("searchOpenBtn").addEventListener("click",openSheet);   // 필 툴바 '검색하기'
   si.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); runSearch(); } });
+  // 전체 교재 보기: 필터·검색어 초기화 후 전체 목록(디자인 590-42404)
+  document.getElementById("btnAllBooks").addEventListener("click",()=>{
+    state.f={grade:"",sem:"",year:"",subject:""}; state.q=""; si.value="";
+    document.querySelectorAll("#filterbar .dropdown").forEach(dd=>{           // 커스텀 드롭다운 라벨·선택 표시 리셋
+      const opts=dd.querySelectorAll(".dd-opt");
+      opts.forEach((o,i)=>o.classList.toggle("sel", i===0));
+      const lbl=dd.querySelector(".dd-label"); if(lbl&&opts[0]) lbl.textContent=opts[0].textContent;
+    });
+    sheetPage=1;
+    if(document.getElementById("resultSheet").classList.contains("on")){ renderSheet(); document.getElementById("sheetList").scrollTop=0; }
+    else openSheet();
+  });
   document.getElementById("logoutBtn").addEventListener("click",()=>{ try{sessionStorage.removeItem("soma_auth");}catch(e){} location.href="index.html"; });  // 세션 해제 → 로그인 화면
   // 프로필 툴팁 메뉴: 교재 큐레이션 / 모드설정 (UI만 — 클릭 시 준비중 토스트)
   const whoBtn=document.getElementById("whoBtn"), whoMenu=document.getElementById("whoMenu");
@@ -295,6 +318,7 @@ function bind(){
     favPanel.classList.toggle("open",open);
     document.getElementById("topbar").classList.toggle("fav-open",open);
     favBtn.setAttribute("aria-expanded",String(open));
+    favBtn.classList.toggle("on",open);   // press 상태(디자인 591-42642)
   });
   document.getElementById("favBody").addEventListener("click",e=>{
     e.stopPropagation();   // 재렌더로 타깃이 DOM에서 분리되면 document의 외부클릭 판정이 오작동(closest null) → 전파 차단
@@ -337,25 +361,10 @@ function bind(){
     if(fav){ const id=fav.dataset.fav; if(favs.has(id))favs.delete(id); else favs.add(id); saveFavs(); fav.classList.toggle("on"); renderFavPanel(); return; }
     if(e.target.closest("[data-go]")) showToast("준비 중입니다");   // 뷰어 없음 → 자리표시
   });
-  // 페이지당 개수 드롭다운(20/30/50/80) — 기존 .dropdown 인프라(바깥클릭/ESC 닫기) 재사용
-  const psDD=document.getElementById("sheetPs"), psTrigger=psDD.querySelector(".dd-trigger"), psLabel=psDD.querySelector(".dd-label");
-  psTrigger.addEventListener("click",e=>{ e.stopPropagation(); const wasOpen=psDD.classList.contains("open"); closeAllDropdowns();
-    if(!wasOpen){ psDD.classList.add("open"); psTrigger.setAttribute("aria-expanded","true"); } });
-  psDD.querySelector(".dd-panel").addEventListener("click",e=>{ const o=e.target.closest(".dd-opt[data-ps]"); if(!o)return;
-    const ps=parseInt(o.dataset.ps,10);
-    psDD.querySelectorAll(".dd-opt").forEach(x=>x.classList.toggle("sel",x===o));
-    psLabel.textContent=o.textContent; closeAllDropdowns();
-    if(ps===SHEET_PS)return;
-    SHEET_PS=ps; sheetPage=1; renderSheet(); document.getElementById("sheetList").scrollTop=0;
-  });
+  // 페이지네이션(개수 드롭다운·뷰 토글은 디자인 590-42404에서 제거 — 20개 고정·리스트 전용)
   document.getElementById("sheetPager").addEventListener("click", e=>{ const b=e.target.closest("button[data-p]"); if(!b||b.disabled)return;
     const p=parseInt(b.dataset.p,10); if(!p||p===sheetPage)return;
     sheetPage=p; renderSheet(); document.getElementById("sheetList").scrollTop=0;
-  });
-  document.getElementById("sheetView").addEventListener("click", e=>{ const b=e.target.closest("[data-v]"); if(!b)return;
-    sheetView=b.dataset.v;
-    document.querySelectorAll("#sheetView button").forEach(x=>x.classList.toggle("on", x===b));
-    renderSheet();
   });
   document.getElementById("sheetList").addEventListener("click", e=>{
     const fav=e.target.closest("[data-fav]");
@@ -368,17 +377,66 @@ function bind(){
 // 지수 0.6 → 오브젝트는 화면보다 덜 줄어 "여백만 압축"되며 자연스러운 중첩 유지.
 function applyScale(){
   const tb=document.getElementById("topbar");
-  const stageH=Math.max(240, window.innerHeight-(tb?tb.offsetHeight:136));
-  const s=Math.min(1, Math.max(0.70, Math.pow(stageH/764, 0.6)));
-  const sl=Math.min(1, Math.max(0.66, (window.innerHeight-96)/680));   // 로그인 스택(실측 자연높이 680) + 티커/여백 96 → 잘림 방지
+  const stageH=Math.max(240, window.innerHeight-(tb?tb.offsetHeight:63));
+  const s=Math.min(1, Math.max(0.70, Math.pow(stageH/837, 0.6)));       // 잔여 용도(즐겨찾기 카드 등)
+  const s2=Math.min(1, Math.max(0.72, Math.pow(stageH/837, 0.62)));     // 교재 전용: 1280×600 → 0.761(188px), 1440×900 → 1(247px)
+  const sl=Math.min(1, Math.max(0.66, (window.innerHeight-96)/680));    // 로그인 스택(실측 자연높이 680) + 티커/여백 96 → 잘림 방지
   const r=document.documentElement.style;
   r.setProperty("--s", s.toFixed(4));
+  r.setProperty("--s2", s2.toFixed(4));
   r.setProperty("--s-login", sl.toFixed(4));
+}
+
+// ── 플로팅 네비 툴바: ☰ 그립으로 드래그 이동 + 위치 저장 ──
+const PILL_HOME={l:16, t:68};
+// 이동 가능 영역 = 스테이지(GNB 아래). GNB(z20) 뒤로 들어가면 보이지도 눌리지도 않아 복구 불가 → 상단을 GNB 아래로 제한
+function pillBounds(p){
+  const tb=document.getElementById("topbar");
+  const m=8, gnb=(tb?tb.offsetHeight:63)+5;
+  return { minL:m, minT:gnb,
+           maxL:Math.max(m, window.innerWidth-p.offsetWidth-m),
+           maxT:Math.max(gnb, window.innerHeight-p.offsetHeight-m) };
+}
+function clampPill(){
+  const p=document.getElementById("navPill"); if(!p) return;
+  const b=pillBounds(p);
+  p.style.left=Math.min(Math.max(b.minL, parseFloat(p.style.left)||PILL_HOME.l), b.maxL)+"px";
+  p.style.top =Math.min(Math.max(b.minT, parseFloat(p.style.top )||PILL_HOME.t), b.maxT)+"px";
+}
+function resetPill(){
+  const p=document.getElementById("navPill"); if(!p) return;
+  p.style.left=PILL_HOME.l+"px"; p.style.top=PILL_HOME.t+"px"; clampPill();
+  try{ localStorage.removeItem("soma_navpos"); }catch(_){}
+}
+function initNavPill(){
+  const p=document.getElementById("navPill"), grip=document.getElementById("npGrip");
+  if(!p||!grip) return;
+  try{ const s=JSON.parse(localStorage.getItem("soma_navpos")||"null");
+       if(s&&typeof s.l==="number"){ p.style.left=s.l+"px"; p.style.top=s.t+"px"; } }catch(e){}
+  clampPill();
+  let sx=0, sy=0, l0=0, t0=0, down=false;
+  grip.addEventListener("pointerdown",e=>{
+    down=true; sx=e.clientX; sy=e.clientY;
+    const r=p.getBoundingClientRect(); l0=r.left; t0=r.top;
+    grip.classList.add("dragging"); try{grip.setPointerCapture(e.pointerId);}catch(_){}
+    e.preventDefault();
+  });
+  grip.addEventListener("pointermove",e=>{ if(!down)return;
+    p.style.left=(l0+e.clientX-sx)+"px"; p.style.top=(t0+e.clientY-sy)+"px"; clampPill();
+  });
+  const end=e=>{ if(!down)return; down=false; grip.classList.remove("dragging");
+    try{grip.releasePointerCapture(e.pointerId);}catch(_){}
+    try{ localStorage.setItem("soma_navpos", JSON.stringify({l:parseFloat(p.style.left)||16, t:parseFloat(p.style.top)||68})); }catch(_){}
+  };
+  grip.addEventListener("pointerup",end); grip.addEventListener("pointercancel",end);
+  grip.addEventListener("dblclick",()=>{ resetPill(); showToast("툴바를 제자리로"); });   // 위치 초기화(복구 수단)
+  window.addEventListener("resize", clampPill);
 }
 
 (async function init(){
   applyScale();
   window.addEventListener("resize", applyScale);
+  initNavPill();
   const cat=await loadCatalog();
   VOLS=(cat.books||[]).filter(b=>!b.hidden);
   bind(); renderShelf();

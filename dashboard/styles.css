@@ -12,8 +12,9 @@
   --cookie:"CookieRun",var(--sans);
   --gnb-h:70px;
   --filter-h:64px;
-  /* 전자칠판 비례 스케일(app.js가 화면 높이로 계산). 1440×900 = 1, 1280×600 ≈ 0.74 */
+  /* 전자칠판 비례 스케일(app.js가 화면 높이로 계산). --s2 = 교재(책) 전용 — 캐릭터는 원본 크기 유지 */
   --s:1;
+  --s2:1;
   --s-login:1;
 }
 @font-face{font-family:"CookieRun";font-weight:700;font-display:swap;
@@ -31,7 +32,7 @@ body{font-family:var(--sans);color:var(--ink);background:#fff;-webkit-font-smoot
 /* ── 상단 바 (전자칠판: 상단·좌우 밀착 풀블리드) ── */
 .topbar{position:relative;z-index:20;flex:none;margin:0;width:100%;
   background:#fff;border:1px solid var(--line);border-top:0;border-left:0;border-right:0;border-radius:0;
-  box-shadow:0 10px 20px rgba(68,68,68,.16),0 0 1px rgba(38,62,43,.31);}
+  box-shadow:0 4px 6px rgba(68,68,68,.12),0 0 .5px rgba(68,68,68,.21);}   /* 필 툴바와 동일 섀도 = 같은 층위로 읽힘(588-41624) */
 
 /* GNB 헤더행 */
 .gnb{position:relative;height:63px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:#fff;border-bottom:1px solid #E7E7E2;border-radius:0;}
@@ -59,7 +60,15 @@ body{font-family:var(--sans);color:var(--ink);background:#fff;-webkit-font-smoot
 .logout-ic:hover{background:#F6F6F2;color:var(--primary);}
 
 /* 필터행 */
-.filterbar{position:relative;display:flex;align-items:center;gap:14px;padding:16px 32px 17px;background:#fff;border-radius:0;}
+/* 필터행 — 검색 시트 내부(디자인 590-42404): 4필터 + 입력(내부 원형 검색) | 전체 교재 보기 */
+.filterbar{position:relative;display:flex;align-items:center;gap:8px;padding:0 24px 8px;margin:0 24px 8px;
+  background:#fff;border-radius:0;border-bottom:1px solid #DDD;flex:none;padding-left:0;padding-right:0;}
+.filterbar .search-wrap{flex:1;min-width:0;display:flex;position:relative;}
+.fb-div{width:2px;height:16px;background:#DDD;flex:none;margin:0 6px;}
+.btn-all{flex:none;height:40px;min-width:96px;padding:0 16px;border:2px solid var(--primary);border-radius:4px;
+  background:#fff;color:var(--primary);font-family:var(--cookie);font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap;
+  transition:background-color .15s,color .15s;}
+.btn-all:hover{background:var(--primary);color:#fff;}
 
 /* 커스텀 셀렉트 드롭다운 (알약 트리거 + 패널) */
 .dropdown{position:relative;flex:none;}
@@ -82,16 +91,38 @@ body{font-family:var(--sans);color:var(--ink);background:#fff;-webkit-font-smoot
 /* 검색 인풋(알약) */
 .search-input{height:40px;border:2px solid var(--line);border-radius:999px;font-family:var(--cookie);font-size:14px;font-weight:400;color:rgba(0,0,0,.58);background:#fff;letter-spacing:0;}
 .search-input:focus{border-color:var(--primary);outline:none;}
-.search-wrap{display:flex;align-items:center;gap:8px;flex:1;max-width:380px;}
-.search-input{flex:1;padding:0 18px;}
-.search-input::placeholder{color:rgba(0,0,0,.42);}
-.search-btn{flex:none;height:40px;min-width:96px;padding:0 16px;border:none;border-radius:8px;background:var(--primary);color:#fff;font-family:var(--cookie);font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;}
+.search-wrap{display:flex;align-items:center;flex:1;}
+.search-input{flex:1;padding:0 44px 0 16px;}   /* 우측 원형 버튼 자리 */
+.search-input::placeholder{color:rgba(0,0,0,.3);}
+/* 입력 내부 원형 검색 버튼(디자인 590-42404) */
+.search-btn{position:absolute;right:4px;top:50%;transform:translateY(-50%);
+  width:32px;height:32px;padding:0;border:none;border-radius:999px;background:var(--primary);color:#fff;
+  cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:background-color .15s;}
 .search-btn:hover{background:var(--primary-d);}
-/* ── GNB 즐겨찾기 버튼 + 패널 (Figma 539-22450 / 카드 301-11913) ── */
-.fav-btn{margin-left:auto;display:inline-flex;align-items:center;gap:8px;border:0;background:none;cursor:pointer;
-  font-family:var(--cookie);font-weight:700;font-size:14px;color:rgba(0,0,0,.58);}
-.fav-btn-ic{width:32px;height:32px;border:1px solid #DDD;border-radius:8px;background:#fff;display:grid;place-items:center;color:#F19A2F;}
-.fav-btn:hover .fav-btn-ic{border-color:#F19A2F;}
+/* ── 플로팅 네비 툴바 (Figma 588-41625): ☰ 드래그 그립 + 즐겨찾기 + 검색하기 ── */
+.nav-pill{position:absolute;left:16px;top:68px;z-index:18;display:inline-flex;align-items:center;gap:14px;
+  width:max-content;white-space:nowrap;   /* 드래그로 우측 이동 시 줄바꿈·축소 방지 */
+  padding:7px;background:#fff;border:1px solid #DDD;border-radius:8px;
+  box-shadow:0 4px 6px rgba(68,68,68,.12),0 0 .5px rgba(68,68,68,.21);}
+/* 드래그 그립: 햄버거로 오인되지 않게 작고 연하게(디자인 591-42523). 히트 영역은 32×32 유지 */
+.np-grip{width:32px;height:32px;display:grid;align-content:center;justify-items:center;gap:1px;cursor:grab;flex:none;
+  border-radius:6px;transition:background-color .15s;}
+.np-grip:hover{background:#F6F6F2;}   /* 드래그 가능함을 hover로 암시 */
+.np-grip.dragging{cursor:grabbing;}
+.np-grip i{width:8px;height:2px;border-radius:2px;background:rgba(0,0,0,.18);}
+/* 버튼 상태 3종(디자인 591-42642): default / hover(라벨 오렌지) / press(박스 오렌지·아이콘 흰색) */
+.np-btn{display:inline-flex;align-items:center;gap:8px;border:0;background:none;cursor:pointer;padding:0;
+  font-family:var(--cookie);font-weight:700;font-size:14px;color:rgba(0,0,0,.58);transition:color .15s;}
+.np-ic{width:32px;height:32px;border:1px solid #DDD;border-radius:8px;background:#fff;display:grid;place-items:center;color:#F19A2F;flex:none;
+  transition:background-color .15s,color .15s;}
+.np-btn:hover{color:#F19A2F;}
+/* :active와 .on을 한 목록에 두면 일부 브라우저에서 .on이 무시됨 → 규칙 분리 + background-color longhand */
+.np-btn:active{color:#F19A2F;}
+.np-btn.on{color:#F19A2F;}
+.np-btn:active .np-ic{background-color:#F19A2F;color:#fff;}
+.np-btn.on .np-ic{background-color:#F19A2F;color:#fff;}
+.np-div{width:2px;height:16px;background:#DDD;flex:none;}
+.nav-pill.hide-on-drag{opacity:.9;}
 /* 오버레이로 열림: 상단바 높이를 늘리지 않아 짧은 화면(600)에서도 스테이지가 눌리지 않음 */
 .fav-panel{position:absolute;top:100%;left:0;right:0;z-index:19;
   display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease;background:#fff;border-radius:0 0 8px 8px;
@@ -100,7 +131,8 @@ body{font-family:var(--sans);color:var(--ink);background:#fff;-webkit-font-smoot
 .fav-panel.open{grid-template-rows:1fr;}
 .fav-panel-in{overflow:hidden;min-height:0;padding:0 21px;transition:padding .3s ease;}
 .fav-panel.open .fav-panel-in{padding:18px 21px 21px;}
-.fav-open .filterbar{border-radius:0;border-bottom:1px solid #E7E7E2;}   /* 패널 열림: 필터바↔패널 구분선(Figma 539) */
+#topbar.fav-open ~ .nav-pill{opacity:0;pointer-events:none;}   /* 즐겨찾기 열리면 필 툴바 숨김(디자인 588-41625) */
+.nav-pill{transition:opacity .2s ease;}
 .fav-head{display:flex;align-items:center;gap:10px;}
 .fav-head-ic{width:32px;height:32px;display:grid;place-items:center;color:#F19A2F;}
 .fav-head-t{font-family:var(--cookie);font-weight:400;font-size:20px;color:#222824;line-height:1.2;}
@@ -139,17 +171,17 @@ body{font-family:var(--sans);color:var(--ink);background:#fff;-webkit-font-smoot
 
 /* 가로 책꽂이 */
 .shelf-wrap{position:absolute;left:0;right:0;bottom:0;z-index:4;height:auto;min-height:0;display:flex;align-items:flex-end;}
-.shelf{display:flex;align-items:flex-end;gap:calc(24px*var(--s));padding:calc(40px*var(--s)) calc(40px*var(--s)) calc(28px*var(--s));overflow-x:auto;overflow-y:hidden;width:100%;scroll-behavior:smooth;
-  -webkit-overflow-scrolling:touch;scrollbar-width:none;margin-left:calc(380px*var(--s));}  /* padding-top = 호버 헤드룸. 크기는 --s 비례(전자칠판 대응) */
+.shelf{display:flex;align-items:flex-end;gap:calc(14px*var(--s2));padding:calc(40px*var(--s2)) 16px calc(14px*var(--s2));overflow-x:auto;overflow-y:hidden;width:100%;scroll-behavior:smooth;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;margin-left:0;}  /* 디자인 377-15396: 좌측 16부터 시작·간격 14. padding-top = 호버 헤드룸 */
 .shelf::-webkit-scrollbar{display:none;}
 
 /* 교재 = 책 프레임(좌측 스파인 + 비대칭 라운드 + 드롭섀도) */
 .shelf{cursor:grab;}
 .shelf.dragging{cursor:grabbing;scroll-behavior:auto;user-select:none;}  /* 드래그 중 smooth 끄고 직접 추종·선택 방지 */
-.book{position:relative;flex:none;width:calc(247px*var(--s));cursor:pointer;transition:transform .18s ease;}  /* Figma 247px × 화면 비례(--s) */
+.book{position:relative;flex:none;width:calc(247px*var(--s2));cursor:pointer;transition:transform .18s ease;}  /* Figma 247px × 교재 전용 비례(--s2) */
 /* 최근열람 배지 (Figma 479:16929): 표지 우상단 걸침 */
-.book-badge{position:absolute;top:calc(-16px*var(--s));right:0;z-index:2;height:calc(32px*var(--s));padding:0 calc(16px*var(--s));border-radius:99px;
-  background:#69BE00;color:#fff;font-size:max(11px,calc(13px*var(--s)));font-weight:700;letter-spacing:-.3px;
+.book-badge{position:absolute;top:calc(-16px*var(--s2));right:0;z-index:2;height:calc(32px*var(--s2));padding:0 calc(16px*var(--s2));border-radius:99px;
+  background:#69BE00;color:#fff;font-size:max(11px,calc(13px*var(--s2)));font-weight:700;letter-spacing:-.3px;
   display:inline-flex;align-items:center;box-shadow:0 2px 3px rgba(105,190,0,.35);pointer-events:none;}
 .book:hover{transform:translateY(-10px);}
 .book .cover{position:relative;width:100%;aspect-ratio:247/309;background:#fff;
@@ -176,17 +208,17 @@ body{font-family:var(--sans);color:var(--ink);background:#fff;-webkit-font-smoot
 
 /* ── 게임기 캐릭터 레이어 ── */
 /* 착지 홈 = 스테이지 좌상단. 비행/스쿼시는 GSAP가 transform으로 제어. */
-.game-char{position:absolute;z-index:10;width:calc(314px*var(--s));left:65%;top:24.6%;
-  transform:translate(-50%,-50%);}   /* 스테이지 기준(top%) + 크기 --s 비례. 상단바(z20) 아래·책(z4) 위 */
+.game-char{position:absolute;z-index:10;width:314px;left:48.2%;top:20.8%;
+  transform:translate(-50%,-50%);}   /* 캐릭터는 원본 크기 고정(축소 안 함). 위치는 스테이지 기준 %(디자인 377-15396) */
 .game-char svg{display:block;width:100%;height:auto;overflow:visible;transform:scaleX(-1);}  /* 좌우 반전 */
 
 /* 캐릭터2(초록 삼각형) — 정적. char1 대비 오른쪽+7.4%·아래+12.6%(Figma 377-15396), 크기 1.34배(510px) */
-.game-char2{position:absolute;z-index:3;width:calc(383px*var(--s));left:85%;top:32.9%;
+.game-char2{position:absolute;z-index:3;width:383px;left:74.1%;top:28.7%;
   transform:translate(-50%,-50%);}   /* 책(shelf-wrap z4)보다 뒤 */
 .game-char2 svg{display:block;width:100%;height:auto;overflow:visible;}
 
 /* 캐릭터3(회색+축구공) — 정적. 구성 377-15396 기준(공이 GNB 카드 아래 보이게 top 소폭 하향). char2·책 뒤 */
-.game-char3{position:absolute;z-index:2;width:calc(328px*var(--s));left:90%;top:15.2%;
+.game-char3{position:absolute;z-index:2;width:328px;left:80.7%;top:13.4%;
   transform:translate(-50%,-50%);}
 .game-char3 svg{display:block;width:100%;height:auto;overflow:visible;}
 
@@ -275,36 +307,34 @@ body{font-family:var(--sans);color:var(--ink);background:#fff;-webkit-font-smoot
 /* ── 검색결과 버텀시트 (Figma 484-20580) ── */
 .sheet-scrim{position:fixed;inset:0;z-index:55;background:rgba(20,22,20,.35);opacity:0;transition:opacity .3s ease;}
 .sheet-scrim.on{opacity:1;}
-.sheet{position:fixed;left:50%;bottom:0;z-index:56;width:min(1200px,96vw);height:94vh;
-  background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -12px 44px rgba(34,40,36,.18);
+/* 중앙 모달 시트 (디자인 588-37052 / 581-27550): 폭 1024 · top 72 · 하단 붙음 */
+.sheet{position:fixed;left:50%;top:72px;bottom:0;z-index:56;width:min(1024px,calc(100% - 96px));height:auto;
+  background:#fff;border-radius:16px 16px 0 0;box-shadow:0 -12px 44px rgba(34,40,36,.18);
   display:flex;flex-direction:column;transform:translate(-50%,100%);
   transition:transform .38s cubic-bezier(.22,1,.36,1);}
 .sheet.on{transform:translate(-50%,0);}
-.sheet-handle{width:48px;height:5px;border-radius:99px;background:#D9D9D4;margin:10px auto 4px;flex:none;cursor:grab;}
-.sheet-head{display:flex;align-items:center;justify-content:space-between;padding:14px 28px 12px;flex:none;}
-.sheet-title{font-size:20px;font-weight:800;color:#222824;}
-.sheet-title span{margin-left:4px;font-size:16px;font-weight:700;color:#8C918B;}
-.sheet-title b{color:#F19A2F;}
-.sheet-head-r{display:flex;align-items:center;gap:16px;}
-/* 페이지당 개수 드롭다운 (20/30/50/80) — 기존 .dropdown 인프라 재사용, 컴팩트 오버라이드 */
-.dd-ps .dd-trigger{width:auto;height:34px;padding:0 10px 0 14px;gap:4px;font-size:13px;font-weight:700;color:rgba(0,0,0,.58);}
-.dd-ps .dd-panel{min-width:88px;}
-/* 페이지네이션 (뷰 토글 왼쪽) */
-.sheet-pager{display:inline-flex;align-items:center;gap:4px;}
-.sheet-pager button{min-width:32px;height:32px;padding:0 6px;border:0;border-radius:8px;background:none;
-  font-size:14px;font-weight:700;color:rgba(0,0,0,.55);cursor:pointer;font-family:inherit;}
+.sheet-handle{width:48px;height:8px;border-radius:99px;background:#E7E7E2;margin:16px auto 16px;flex:none;cursor:grab;}
+/* 헤더(디자인 590-41636): 좌 타이틀·총건수 / 우 페이지네이션 */
+.sheet-head{display:flex;align-items:center;justify-content:space-between;padding:0 24px 8px;flex:none;height:32px;box-sizing:content-box;}
+.sheet-title{display:flex;align-items:center;gap:8px;font-family:var(--cookie);font-weight:700;font-size:18px;color:rgba(0,0,0,.78);}
+.sheet-title span{font-weight:400;font-size:18px;color:rgba(0,0,0,.38);}
+.sheet-title b{color:#F19A2F;font-weight:400;}
+/* 페이지네이션 — 32×32·radius 8, 현재 페이지 오렌지 채움 */
+.sheet-pager{display:inline-flex;align-items:center;}
+.sheet-pager button{min-width:32px;height:32px;padding:0 8px;border:0;border-radius:8px;background:none;
+  font-family:var(--cookie);font-weight:400;font-size:14px;color:rgba(0,0,0,.58);cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;transition:background-color .15s,color .15s;}
 .sheet-pager button:hover{background:#F6F6F2;}
 .sheet-pager button.cur{background:#F19A2F;color:#fff;}
-.sheet-pager button.pg-nav{font-size:18px;font-weight:400;}
-.sheet-pager button:disabled{opacity:.3;cursor:default;background:none;}
-.sheet-pager .pg-ell{min-width:20px;text-align:center;color:rgba(0,0,0,.35);font-size:14px;}
-.sheet-view{display:inline-flex;border:1.5px solid #DEDED8;border-radius:10px;overflow:hidden;background:#fff;}
-.sheet-view button{width:38px;height:34px;display:inline-flex;align-items:center;justify-content:center;border:0;background:#fff;color:#9AA09A;cursor:pointer;}
-.sheet-view button.on{background:#F19A2F;color:#fff;}
-.sheet-list{flex:1;overflow-y:auto;padding:0 28px 24px;-webkit-overflow-scrolling:touch;}
+.sheet-pager button.cur:hover{background:#F19A2F;}
+.sheet-pager button.pg-nav{color:rgba(0,0,0,.38);}
+.sheet-pager button.pg-nav:hover{color:#F19A2F;}
+.sheet-pager button:disabled{opacity:.28;cursor:default;background:none;}
+.sheet-pager .pg-ell{min-width:20px;text-align:center;color:rgba(0,0,0,.3);font-size:14px;}
+.sheet-list{flex:1;overflow-y:auto;padding:0 24px 24px;-webkit-overflow-scrolling:touch;}
 
-/* 리스트 행 (comp1 484-10672) */
-.sr-row{display:flex;gap:14px;align-items:center;border-bottom:1px solid #DDD;padding:10px 0;}
+/* 리스트 행 (디자인 588-37052 search_list: 높이 41 + 간격 8) */
+.sr-row{display:flex;gap:14px;align-items:center;border-bottom:1px solid #DDD;height:41px;margin-bottom:8px;}
 .sr-title{flex:1;min-width:0;font-size:16px;color:rgba(0,0,0,.58);letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .sr-meta{flex:none;display:flex;gap:8px;font-size:14px;color:rgba(0,0,0,.58);letter-spacing:-.3px;white-space:nowrap;}
 .sr-pagewrap{flex:none;display:flex;align-items:center;gap:5px;}
@@ -314,9 +344,13 @@ body{font-family:var(--sans);color:var(--ink);background:#fff;-webkit-font-smoot
 .sr-punit{width:72px;font-size:16px;color:rgba(0,0,0,.38);letter-spacing:-.3px;white-space:nowrap;}
 .sr-punit i{margin:0 3px;color:rgba(0,0,0,.3);font-style:normal;}
 .sr-punit b{color:rgba(0,0,0,.78);font-weight:400;}
-.sr-star{width:32px;height:32px;flex:none;border:1px solid #DDD;border-radius:8px;background:#fff;color:#DDD;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;}
-.sr-star.on{color:#F19A2F;border-color:#F19A2F;}
-.sr-go{width:32px;height:32px;flex:none;border:0;border-radius:8px;background:#F19A2F;color:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;}
+/* ★ 즐겨찾기 토글(디자인 590-42404): 기본 = 연회색 박스·연회색 별 / 활성 = 오렌지 박스·흰 별 */
+.sr-star{width:32px;height:32px;flex:none;border:0;border-radius:8px;background:#F5F5F5;color:#DDD;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:background-color .15s,color .15s;}
+.sr-star:hover{color:#F19A2F;}
+.sr-star.on{background:#F19A2F;color:#fff;}
+.sr-go{width:32px;height:32px;flex:none;border:0;border-radius:8px;background:none;color:#F19A2F;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;}
+.sr-go:hover{background:#FFF3E4;}
 
 /* 그리드 뷰 */
 .sheet-list.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:20px;align-content:start;padding-top:14px;}
@@ -327,15 +361,14 @@ body{font-family:var(--sans);color:var(--ink);background:#fff;-webkit-font-smoot
 body.sheet-open{overflow:hidden;}
 
 /* ── 교재 카탈로그 버텀시트 (Figma 484-23598) ── */
-.sheet.catalog{width:min(1240px,96vw);}
-.cat-head{flex:none;padding:16px 32px 12px;}
+.cat-head{flex:none;padding:0 24px 12px;}
 .cat-brand{display:flex;align-items:center;gap:8px;}
 .cat-logo-img{height:30px;width:auto;display:block;}
 .cat-logo{font-family:var(--cookie);font-weight:700;font-size:24px;color:rgba(0,0,0,.78);letter-spacing:-.5px;line-height:1;}
 .cat-total{font-family:var(--cookie);font-size:18px;font-weight:400;color:rgba(0,0,0,.38);letter-spacing:0;}
 .cat-total b{color:#F19A2F;font-weight:700;}
-.cat-body{flex:1;overflow-y:auto;padding:0 28px 28px;-webkit-overflow-scrolling:touch;}
-.cat-sub{display:grid;grid-template-columns:300px 1fr;gap:28px;padding:22px 0;border-top:1px solid #EEE;}
+.cat-body{flex:1;overflow-y:auto;padding:0 24px 24px;-webkit-overflow-scrolling:touch;}
+.cat-sub{display:grid;grid-template-columns:190px 1fr;gap:24px;padding:18px 0;border-top:1px solid #EEE;}
 .cat-sub:first-child{border-top:0;}
 /* 좌측 하위 시리즈 카드 (comp 484-13530) */
 .cat-card{position:sticky;top:8px;align-self:start;}   /* 스크롤 시 해당 시리즈 구간 동안 상단 고정 */
@@ -355,7 +388,7 @@ body.sheet-open{overflow:hidden;}
 .cat-lv-line{position:sticky;top:0;z-index:4;height:2px;background:#F19A2F;}
 /* 레벨바 sticky: 라인 바로 아래(top:2px)에서 다음 바로 교체 */
 .cat-lv-bar{position:sticky;top:2px;z-index:2;background:#F7F7F7;border-bottom:1px solid #DDD;padding:6px 16px;font-size:14px;font-weight:700;color:rgba(0,0,0,.55);}
-.cat-row{display:flex;gap:14px;align-items:center;border-bottom:1px solid #DDD;padding:10px 12px;}
+.cat-row{display:flex;gap:14px;align-items:center;border-bottom:1px solid #DDD;height:41px;margin-bottom:8px;padding:0 12px;}
 .cat-row-title{flex:1;min-width:0;display:flex;align-items:center;gap:8px;font-size:16px;color:rgba(0,0,0,.6);letter-spacing:-.3px;white-space:nowrap;overflow:hidden;}
 .cat-row-title .name{overflow:hidden;text-overflow:ellipsis;}
 .cat-badge{flex:none;height:20px;display:inline-flex;align-items:center;font-size:13px;font-weight:400;color:#527C47;background:rgba(77,182,97,.2);border-radius:99px;padding:0 8px;letter-spacing:-.3px;}
@@ -369,7 +402,8 @@ body.sheet-open{overflow:hidden;}
 .cat-page .u b{color:rgba(0,0,0,.78);font-weight:400;}
 .cat-star{width:32px;height:32px;flex:none;border:1px solid #DDD;border-radius:8px;background:#fff;color:#DDD;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;}
 .cat-star.on{color:#F19A2F;border-color:#F19A2F;}
-.cat-go{width:32px;height:32px;flex:none;border:0;border-radius:8px;background:#F19A2F;color:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;}
+.cat-go{width:32px;height:32px;flex:none;border:0;border-radius:8px;background:none;color:rgba(0,0,0,.58);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;}
+.cat-go:hover{background:#F6F6F2;color:#F19A2F;}
 
 /* 준비중 토스트 (흰색 카드) */
 .toast{position:fixed;left:50%;bottom:40px;transform:translate(-50%,12px);z-index:60;
