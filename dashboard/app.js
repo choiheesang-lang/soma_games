@@ -397,11 +397,14 @@ function pillBounds(p){
            maxL:Math.max(m, window.innerWidth-p.offsetWidth-m),
            maxT:Math.max(gnb, window.innerHeight-p.offsetHeight-m) };
 }
+function pillClampXY(p,x,y){
+  const b=pillBounds(p);
+  return { x:Math.min(Math.max(b.minL,x), b.maxL), y:Math.min(Math.max(b.minT,y), b.maxT) };
+}
 function clampPill(){
   const p=document.getElementById("navPill"); if(!p) return;
-  const b=pillBounds(p);
-  p.style.left=Math.min(Math.max(b.minL, parseFloat(p.style.left)||PILL_HOME.l), b.maxL)+"px";
-  p.style.top =Math.min(Math.max(b.minT, parseFloat(p.style.top )||PILL_HOME.t), b.maxT)+"px";
+  const c=pillClampXY(p, parseFloat(p.style.left)||PILL_HOME.l, parseFloat(p.style.top)||PILL_HOME.t);
+  p.style.left=c.x+"px"; p.style.top=c.y+"px";
 }
 function resetPill(){
   const p=document.getElementById("navPill"); if(!p) return;
@@ -414,22 +417,63 @@ function initNavPill(){
   try{ const s=JSON.parse(localStorage.getItem("soma_navpos")||"null");
        if(s&&typeof s.l==="number"){ p.style.left=s.l+"px"; p.style.top=s.t+"px"; } }catch(e){}
   clampPill();
-  let sx=0, sy=0, l0=0, t0=0, down=false;
+
+  let pid=null, sx=0, sy=0, l0=0, t0=0, nx=0, ny=0, raf=0;
+  let resumePid=null, resumeAt=0, lastTap=0;
+
+  function begin(e){
+    pid=e.pointerId; sx=e.clientX; sy=e.clientY;
+    const r=p.getBoundingClientRect(); l0=r.left; t0=r.top; nx=l0; ny=t0;
+    grip.classList.add("dragging"); p.style.willChange="transform";
+    try{ grip.setPointerCapture(e.pointerId); }catch(_){}
+  }
+  // 드래그 중엔 transform으로만 이동(리플로우 0회) → 저사양 전자칠판에서도 매끄럽게 추종
+  function paint(){ raf=0; p.style.transform="translate3d("+(nx-l0)+"px,"+(ny-t0)+"px,0)"; }
+  function commit(){
+    if(raf){ cancelAnimationFrame(raf); raf=0; }
+    p.style.transform=""; p.style.willChange="";
+    p.style.left=nx+"px"; p.style.top=ny+"px";
+    grip.classList.remove("dragging");
+    try{ localStorage.setItem("soma_navpos", JSON.stringify({l:nx,t:ny})); }catch(_){}
+  }
   grip.addEventListener("pointerdown",e=>{
-    down=true; sx=e.clientX; sy=e.clientY;
-    const r=p.getBoundingClientRect(); l0=r.left; t0=r.top;
-    grip.classList.add("dragging"); try{grip.setPointerCapture(e.pointerId);}catch(_){}
-    e.preventDefault();
+    // 더블탭/더블클릭 = 제자리로(GNB 뒤로 숨었을 때의 복구 수단). 터치에서도 확실히 잡히게 pointerdown으로 판정
+    const t=Date.now();
+    if(t-lastTap<350){ lastTap=0;
+      if(pid!==null){ try{grip.releasePointerCapture(pid);}catch(_){} }
+      pid=null; resumePid=null;
+      if(raf){ cancelAnimationFrame(raf); raf=0; }
+      p.style.transform=""; p.style.willChange=""; grip.classList.remove("dragging");
+      resetPill(); showToast("툴바를 제자리로"); return;
+    }
+    lastTap=t;
+    if(pid!==null) return;
+    begin(e);
+    if(e.cancelable) e.preventDefault();
   });
-  grip.addEventListener("pointermove",e=>{ if(!down)return;
-    p.style.left=(l0+e.clientX-sx)+"px"; p.style.top=(t0+e.clientY-sy)+"px"; clampPill();
+  // 캡처가 풀려도 놓치지 않게 window에서 수신. passive:false → pointermove에서 preventDefault 가능
+  window.addEventListener("pointermove",e=>{
+    if(pid===null){
+      // 브라우저가 pointercancel을 냈지만 손가락이 아직 붙어 있는 경우 → 같은 포인터로 드래그 이어받기
+      if(resumePid!==null && e.pointerId===resumePid && Date.now()<resumeAt) begin(e);
+      else return;
+    } else if(e.pointerId!==pid) return;   // 다중 터치의 다른 손가락 무시
+    const c=pillClampXY(p, l0+e.clientX-sx, t0+e.clientY-sy);
+    nx=c.x; ny=c.y;
+    if(!raf) raf=requestAnimationFrame(paint);
+    if(e.cancelable) e.preventDefault();
+  },{passive:false});
+  window.addEventListener("pointerup",e=>{
+    if(pid===null||e.pointerId!==pid) return;
+    try{ grip.releasePointerCapture(pid); }catch(_){}
+    pid=null; resumePid=null; commit();
   });
-  const end=e=>{ if(!down)return; down=false; grip.classList.remove("dragging");
-    try{grip.releasePointerCapture(e.pointerId);}catch(_){}
-    try{ localStorage.setItem("soma_navpos", JSON.stringify({l:parseFloat(p.style.left)||16, t:parseFloat(p.style.top)||68})); }catch(_){}
-  };
-  grip.addEventListener("pointerup",end); grip.addEventListener("pointercancel",end);
-  grip.addEventListener("dblclick",()=>{ resetPill(); showToast("툴바를 제자리로"); });   // 위치 초기화(복구 수단)
+  // pointercancel을 '드래그 종료'로 처리하면 1~2cm마다 끊긴다 → 위치만 확정하고 재개 가능 상태로 둔다
+  window.addEventListener("pointercancel",e=>{
+    if(pid===null||e.pointerId!==pid) return;
+    resumePid=pid; resumeAt=Date.now()+900;
+    pid=null; commit();
+  });
   window.addEventListener("resize", clampPill);
 }
 

@@ -103,10 +103,14 @@ body{font-family:var(--sans);color:var(--ink);background:#fff;-webkit-font-smoot
 .nav-pill{position:absolute;left:16px;top:68px;z-index:18;display:inline-flex;align-items:center;gap:14px;
   width:max-content;white-space:nowrap;   /* 드래그로 우측 이동 시 줄바꿈·축소 방지 */
   padding:7px;background:#fff;border:1px solid #DDD;border-radius:8px;
-  box-shadow:0 4px 6px rgba(68,68,68,.12),0 0 .5px rgba(68,68,68,.21);}
+  box-shadow:0 4px 6px rgba(68,68,68,.12),0 0 .5px rgba(68,68,68,.21);
+  touch-action:none;}   /* 전자칠판: 브라우저 pan/pinch가 터치를 뺏어가 pointercancel 나는 것 차단 */
 /* 드래그 그립: 햄버거로 오인되지 않게 작고 연하게(디자인 591-42523). 히트 영역은 32×32 유지 */
-.np-grip{width:32px;height:32px;display:grid;align-content:center;justify-items:center;gap:1px;cursor:grab;flex:none;
-  border-radius:6px;transition:background-color .15s;}
+.np-grip{position:relative;width:32px;height:32px;display:grid;align-content:center;justify-items:center;gap:1px;cursor:grab;flex:none;
+  border-radius:6px;transition:background-color .15s;
+  touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;}
+/* 손가락(≈9mm) 대응 히트 영역 44×44 — 시각 크기·레이아웃은 그대로 */
+.np-grip::before{content:"";position:absolute;left:50%;top:50%;width:44px;height:44px;transform:translate(-50%,-50%);}
 .np-grip:hover{background:#F6F6F2;}   /* 드래그 가능함을 hover로 암시 */
 .np-grip.dragging{cursor:grabbing;}
 .np-grip i{width:8px;height:2px;border-radius:2px;background:rgba(0,0,0,.18);}
