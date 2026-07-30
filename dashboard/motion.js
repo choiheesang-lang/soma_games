@@ -367,15 +367,209 @@
     gsap.ticker.add(sync); sync();
   }
 
+  // ── ?tune 구슬손 튜닝 툴 (엄지·손·구슬 위치/회전을 눈으로 맞춤) ──
+  // 코드에 박혀 있는 현재값 = 기준값. 조정값은 localStorage("soma_tune")에 저장되고
+  // 확정되면 index.html에 하드코딩으로 옮긴다. ?tune이 없으면 아무 것도 로드/적용되지 않는다.
+  const TUNE_BASE = {
+    thumb:{ x:1010.4, y:784.1, rot:-82.14, scale:3.786, flipX:false, flipY:true },
+    palm: { x:985.5,  y:801.7, r:60.6 },
+    ball: { x:1185,   y:640,   r:230 }
+  };
+  const THUMB_PIVOT="-11 -15.13";   // path bbox 중심 정렬(고정)
+  const SHOULDER=[640,850];
+
+  function tuneApply(V){
+    const t=V.thumb, p=V.palm, b=V.ball;
+    // 엄지
+    const sx=(t.flipX?-1:1)*t.scale, sy=(t.flipY?-1:1)*t.scale;
+    const tr=`translate(${t.x} ${t.y}) rotate(${t.rot}) scale(${r3(sx)} ${r3(sy)}) translate(${THUMB_PIVOT})`;
+    $("#hold-thumb").setAttribute("transform",tr);
+    // 손 + 팔 호(끝점 = 손 중심, r=현/√2 → 90° 유지)
+    const palm=$("#hold-palm");
+    palm.setAttribute("cx",p.x); palm.setAttribute("cy",p.y); palm.setAttribute("r",p.r);
+    const ch=Math.hypot(p.x-SHOULDER[0], p.y-SHOULDER[1]), R=r3(ch/Math.SQRT2);
+    const d=`M${SHOULDER[0]} ${SHOULDER[1]} A ${R} ${R} 0 0 0 ${p.x} ${p.y}`;
+    $("#hold-arm").setAttribute("d",d);
+    // 구슬: 중심/반지름 이동 시 내부 요소를 상대 오프셋 유지하며 함께 이동
+    const B=TUNE_BASE.ball, k=b.r/B.r;
+    const mv=(el,attrs)=>{ for(const a in attrs) el.setAttribute(a, r3(attrs[a])); };
+    const off=(bx,by)=>[b.x+(bx-B.x)*k, b.y+(by-B.y)*k];
+    $("#marble-clip>circle").setAttribute("cx",b.x);
+    $("#marble-clip>circle").setAttribute("cy",b.y);
+    $("#marble-clip>circle").setAttribute("r", b.r);
+    const fo=$("#marble-bubble>foreignObject");
+    mv(fo,{x:b.x-b.r, y:b.y-b.r, width:b.r*2, height:b.r*2});
+    const [lx,ly]=off(1194.7,641.4);
+    $("#marble-label").parentNode.setAttribute("transform",`translate(${r3(lx)} ${r3(ly)}) rotate(-29.4)`);
+    mv($("#marble-label"),{x:-168.6*k, y:-106.9*k, width:337.2*k, height:213.8*k});
+    const [gx,gy]=off(1040.5,582.5);
+    mv($("#marble-light"),{cx:gx, cy:gy, r:106.9*k});
+    $("#marbleLight").setAttribute("gradientTransform",`translate(${r3(gx)} ${r3(gy)}) rotate(90) scale(${r3(106.9*k)})`);
+    const [ax,ay]=off(1121,531.8);
+    $("#marble-lightline").setAttribute("transform",
+      `translate(${r3(ax)} ${r3(ay)}) rotate(-78.78) scale(${r3(4.0734*k)}) translate(-26.96 -26.96)`);
+    return {thumbTransform:tr, armD:d, palm:`cx="${p.x}" cy="${p.y}" r="${p.r}"`, ballR:R};
+  }
+  const r3=v=>Math.round(v*1000)/1000;
+
+  function setupTune(){
+    if(!$("#hold-thumb")) return;
+    const tl=window.charTL;
+    // 팔이 정착한 시점으로 고정 — 안 그러면 슬라이더 값이 타임라인에 덮인다
+    if(tl){ tl.eventCallback("onComplete",null); tl.pause(); tl.time(tl.labels.b1-0.2); }
+
+    let V; try{ V=JSON.parse(localStorage.getItem("soma_tune")||"null"); }catch(e){}
+    if(!V || !V.thumb) V=JSON.parse(JSON.stringify(TUNE_BASE));
+
+    const SPEC={
+      thumb:[["x","x",TUNE_BASE.thumb.x-250,TUNE_BASE.thumb.x+250,.1],
+             ["y","y",TUNE_BASE.thumb.y-250,TUNE_BASE.thumb.y+250,.1],
+             ["rot","회전°",-180,180,.01],
+             ["scale","크기",1,8,.001]],
+      palm: [["x","x",TUNE_BASE.palm.x-250,TUNE_BASE.palm.x+250,.1],
+             ["y","y",TUNE_BASE.palm.y-250,TUNE_BASE.palm.y+250,.1],
+             ["r","반지름",30,110,.1]],
+      ball: [["x","x",TUNE_BASE.ball.x-250,TUNE_BASE.ball.x+250,.1],
+             ["y","y",TUNE_BASE.ball.y-250,TUNE_BASE.ball.y+250,.1],
+             ["r","반지름",150,320,.1]]
+    };
+    const NAME={thumb:"엄지",palm:"손",ball:"구슬"};
+    let target="thumb";
+
+    const box=document.createElement("div");
+    box.style.cssText="position:fixed;right:12px;top:76px;z-index:1000;width:290px;background:rgba(20,22,20,.95);color:#fff;"+
+      "padding:12px 14px;border-radius:12px;font:12px/1.45 monospace;box-shadow:0 12px 32px rgba(0,0,0,.4);";
+    const mkBtn=(t,bg)=>{const b=document.createElement("button");b.textContent=t;
+      b.style.cssText=`background:${bg||"#2b2f2b"};border:1px solid #4a4f4a;color:#fff;padding:5px 9px;border-radius:6px;cursor:pointer;font:inherit;`;return b;};
+    const row=()=>{const d=document.createElement("div");d.style.cssText="display:flex;align-items:center;gap:6px;margin-bottom:6px;";return d;};
+
+    // 대상 선택
+    const head=row();
+    const sel=document.createElement("select");
+    sel.style.cssText="flex:1;background:#2b2f2b;color:#fff;border:1px solid #4a4f4a;border-radius:6px;padding:5px;font:inherit;";
+    ["thumb","palm","ball"].forEach(k=>{const o=document.createElement("option");o.value=k;o.textContent=NAME[k];sel.appendChild(o);});
+    head.append(document.createTextNode("대상"), sel); box.appendChild(head);
+
+    // 슬라이더 영역
+    const fields=document.createElement("div"); box.appendChild(fields);
+
+    // 플립(엄지 전용)
+    const flipRow=row();
+    const fx=document.createElement("input"); fx.type="checkbox";
+    const fy=document.createElement("input"); fy.type="checkbox";
+    const lx=document.createElement("label"), ly=document.createElement("label");
+    lx.style.cssText=ly.style.cssText="display:flex;align-items:center;gap:4px;cursor:pointer;";
+    lx.append(fx,document.createTextNode("flipX")); ly.append(fy,document.createTextNode("flipY"));
+    flipRow.append(lx,ly); box.appendChild(flipRow);
+
+    // 줌 · 레퍼런스 오버레이
+    const hr=()=>{const d=document.createElement("div");d.style.cssText="border-top:1px solid #3a3f3a;margin:8px 0;";return d;};
+    box.appendChild(hr());
+    const mkRange=(label,min,max,step,val,oninput)=>{
+      const d=row(); const s=document.createElement("span"); s.textContent=label; s.style.cssText="width:74px;color:#9aa;";
+      const r=document.createElement("input"); r.type="range"; r.min=min; r.max=max; r.step=step; r.value=val; r.style.cssText="flex:1;min-width:0;";
+      const n=document.createElement("span"); n.style.cssText="width:44px;text-align:right;color:#FFDE59;"; n.textContent=val;
+      r.addEventListener("input",()=>{ n.textContent=r.value; oninput(+r.value); });
+      d.append(s,r,n); return {row:d, range:r, num:n};
+    };
+    const char=$("#gameChar"), stage=$("#stage");
+    const zoomCtl=mkRange("줌(px)",314,1600,2,314,v=>applyZoom(v));
+    box.appendChild(zoomCtl.row);
+    const opaCtl=mkRange("레퍼런스",0,100,1,0,v=>{ ref.style.opacity=v/100; });
+    box.appendChild(opaCtl.row);
+
+    // 레퍼런스 오버레이: Figma 렌더(구슬 코어 Ø130px @중심 148.5,94) → SVG 460 units에 정렬
+    const ref=document.createElement("img");
+    ref.src="assets/dev/marble-ref.png";
+    ref.style.cssText="position:absolute;z-index:11;pointer-events:none;opacity:0;transform-origin:0 0;";
+    stage.appendChild(ref);
+    const REF={cx:148.5, cy:94.0, d:130.0};   // 레퍼런스 PNG 내 구슬 코어(실측)
+
+    function applyZoom(px){
+      char.style.width=px+"px";
+      // 구슬이 스테이지 중앙에 오도록 보정.
+      // #soma-char엔 CSS scaleX(-1)이 있지만 #arm-front는 미러 래퍼(translate(1160) scale(-1,1))로 이중반전 상쇄
+      // → 래퍼 로컬 X의 화면 오프셋 = px - (1160-X)*u = X*u (1160*u = px 이므로).
+      const u=px/1160;                                  // 1 unit = u CSS px
+      const bx=V.ball.x*u, by=V.ball.y*u;               // 캐릭터 좌상단 기준 구슬 중심(화면 좌표)
+      const sw=stage.clientWidth, sh=stage.clientHeight;
+      char.style.left="0px"; char.style.top="0px"; char.style.transform="none";
+      char.style.marginLeft=(sw/2-bx)+"px"; char.style.marginTop=(sh/2-by)+"px";
+      placeRef(px);
+    }
+    function placeRef(px){
+      const u=px/1160, k=(460*u)/REF.d;                 // 구슬 지름 460 units ↔ 레퍼런스 130px
+      const w=ref.naturalWidth||244, h=ref.naturalHeight||190;
+      const bx=V.ball.x*u, by=V.ball.y*u;
+      const left=(stage.clientWidth/2) - REF.cx*k, top=(stage.clientHeight/2) - REF.cy*k;
+      ref.style.left=left+"px"; ref.style.top=top+"px";
+      ref.style.width=(w*k)+"px"; ref.style.height=(h*k)+"px";
+    }
+    ref.addEventListener("load",()=>placeRef(+zoomCtl.range.value));
+
+    // 출력
+    box.appendChild(hr());
+    const out=document.createElement("textarea");
+    out.readOnly=true; out.rows=5;
+    out.style.cssText="width:100%;box-sizing:border-box;background:#12140f;color:#8f8;border:1px solid #3a3f3a;border-radius:6px;padding:6px;font:11px/1.4 monospace;resize:vertical;";
+    box.appendChild(out);
+    const btns=row(); btns.style.marginTop="6px";
+    const copy=mkBtn("복사","#F19A2F"), reset=mkBtn("초기화");
+    btns.append(copy,reset); box.appendChild(btns);
+    copy.addEventListener("click",()=>{ navigator.clipboard.writeText(out.value).then(()=>{copy.textContent="복사됨";setTimeout(()=>copy.textContent="복사",900);}); });
+    reset.addEventListener("click",()=>{ V=JSON.parse(JSON.stringify(TUNE_BASE));
+      try{localStorage.removeItem("soma_tune");}catch(e){} build(); refresh(); });
+
+    function refresh(){
+      const r=tuneApply(V);
+      out.value =
+        `<!-- #hold-thumb -->\ntransform="${r.thumbTransform}"\n\n`+
+        `<!-- #hold-palm -->  ${r.palm}\n`+
+        `<!-- #hold-arm -->   d="${r.armD}"\n`+
+        `<!-- 구슬 -->        중심 ${V.ball.x} ${V.ball.y} · r ${V.ball.r}`;
+      try{ localStorage.setItem("soma_tune", JSON.stringify(V)); }catch(e){}
+    }
+
+    function build(){
+      fields.innerHTML="";
+      SPEC[target].forEach(([key,label,min,max,step])=>{
+        const c=mkRange(label,min,max,step,V[target][key],v=>{ V[target][key]=v; refresh(); if(target==="ball"){applyZoom(+zoomCtl.range.value);} });
+        // 숫자 직접 입력
+        c.num.contentEditable="true"; c.num.style.cursor="text"; c.num.style.outline="none";
+        c.num.addEventListener("blur",()=>{ const v=parseFloat(c.num.textContent); if(!isNaN(v)){ c.range.value=v; V[target][key]=v; refresh(); } });
+        c.num.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); c.num.blur(); } });
+        // 방향키 넛지: 1 unit / Shift 10
+        c.range.addEventListener("keydown",e=>{
+          if(e.key!=="ArrowLeft"&&e.key!=="ArrowRight"&&e.key!=="ArrowUp"&&e.key!=="ArrowDown") return;
+          e.preventDefault();
+          const dir=(e.key==="ArrowRight"||e.key==="ArrowUp")?1:-1, st=e.shiftKey?10:1;
+          const nv=Math.min(max,Math.max(min, (+c.range.value)+dir*st));
+          c.range.value=nv; c.num.textContent=r3(nv); V[target][key]=nv; refresh();
+          if(target==="ball") applyZoom(+zoomCtl.range.value);
+        });
+        fields.appendChild(c.row);
+      });
+      flipRow.style.display = target==="thumb" ? "flex" : "none";
+      fx.checked=!!V.thumb.flipX; fy.checked=!!V.thumb.flipY;
+    }
+    fx.addEventListener("change",()=>{ V.thumb.flipX=fx.checked; refresh(); });
+    fy.addEventListener("change",()=>{ V.thumb.flipY=fy.checked; refresh(); });
+    sel.addEventListener("change",()=>{ target=sel.value; build(); });
+
+    document.body.appendChild(box);
+    build(); refresh(); applyZoom(314);
+  }
+
   const btn = $("#btnLogin");
   if(btn) btn.addEventListener("click", playMorph);
 
   // 세션 인증 상태 or ?skip/?debug → 로그인 건너뛰고 대시보드 바로
   const params=new URLSearchParams(location.search);
   let authed=false; try{ authed=sessionStorage.getItem("soma_auth")==="1"; }catch(e){}
-  if(authed || params.has("skip") || params.has("debug")){
+  if(authed || params.has("skip") || params.has("debug") || params.has("tune")){
     gsap.set(["#topbar",".waves",".shelf-wrap",".elephant"],{opacity:1});
     enterDashboard();
   }
+  if(params.has("tune")) setupTune();   // 구슬손 튜닝(엄지·손·구슬). 없으면 아무 영향 없음
   if(params.has("debug")) setupDebug();
 })();
