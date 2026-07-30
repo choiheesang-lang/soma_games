@@ -6,6 +6,7 @@
   --ink-58:rgba(34,40,36,.58);
   --line:#DEDED8;
   --paper:#FFFFFF;
+  --bg-light:#F7F7F7;     /* bg/light — 대시보드 캔버스 배경 */
   --green:#69BE00;
   --danger:#D23040;
   --sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
@@ -86,7 +87,7 @@ body{font-family:var(--sans);color:var(--ink);background:#fff;-webkit-font-smoot
 .dropdown.open .dd-panel{display:block;}
 .dd-opt{padding:8px 16px;font-family:var(--cookie);font-size:14px;color:rgba(0,0,0,.58);letter-spacing:0;cursor:pointer;white-space:nowrap;}
 .dd-opt:hover{background:#FAFAFA;}
-.dd-opt.sel{background:#F7F7F7;color:var(--primary);font-weight:700;}
+.dd-opt.sel{background:var(--bg-light);color:var(--primary);font-weight:700;}
 
 /* 검색 인풋(알약) */
 .search-input{height:40px;border:2px solid var(--line);border-radius:999px;font-family:var(--cookie);font-size:14px;font-weight:400;color:rgba(0,0,0,.58);background:#fff;letter-spacing:0;}
@@ -142,7 +143,7 @@ body{font-family:var(--sans);color:var(--ink);background:#fff;-webkit-font-smoot
 .fav-head-t{font-family:var(--cookie);font-weight:400;font-size:20px;color:#222824;line-height:1.2;}
 .fav-count{height:24px;min-width:24px;border-radius:99px;background:rgba(240,140,50,.24);color:#F19A2F;
   font-weight:800;font-size:13px;display:inline-flex;align-items:center;justify-content:center;padding:0 8px;}
-.fav-empty{margin-top:13px;background:#F7F7F7;border:1px dashed #DDD;border-radius:14px;height:96px;
+.fav-empty{margin-top:13px;background:var(--bg-light);border:1px dashed #DDD;border-radius:14px;height:96px;
   display:flex;flex-direction:column;justify-content:center;padding:0 23px;letter-spacing:-.3px;}
 .fav-empty b{font-size:16px;font-weight:700;color:rgba(0,0,0,.58);line-height:1.5;}
 .fav-empty p{font-size:14px;color:rgba(0,0,0,.58);line-height:1.5;}
@@ -164,7 +165,7 @@ body{font-family:var(--sans);color:var(--ink);background:#fff;-webkit-font-smoot
 .fav-card .fc-cover .auto .a-gs{margin-top:auto;font-size:11px;font-weight:700;color:#9AA09A;}
 
 /* ── 스테이지(웨이브·코끼리·책꽂이·캐릭터) ── */
-.stage{position:relative;flex:1;min-height:0;overflow:hidden;background:#fff;}
+.stage{position:relative;flex:1;min-height:0;overflow:hidden;background:var(--bg-light);}
 
 /* 바닥 웨이브(노랑+주황 2톤) */
 .waves{position:absolute;left:0;right:0;bottom:0;height:46%;min-height:calc(300px*var(--s));z-index:1;pointer-events:none;}
@@ -391,7 +392,7 @@ body.sheet-open{overflow:hidden;}
 /* 주황 라인: 섹션 스크롤 내내 최상단 고정(레벨바와 분리된 sticky) */
 .cat-lv-line{position:sticky;top:0;z-index:4;height:2px;background:#F19A2F;}
 /* 레벨바 sticky: 라인 바로 아래(top:2px)에서 다음 바로 교체 */
-.cat-lv-bar{position:sticky;top:2px;z-index:2;background:#F7F7F7;border-bottom:1px solid #DDD;padding:6px 16px;font-size:14px;font-weight:700;color:rgba(0,0,0,.55);}
+.cat-lv-bar{position:sticky;top:2px;z-index:2;background:var(--bg-light);border-bottom:1px solid #DDD;padding:6px 16px;font-size:14px;font-weight:700;color:rgba(0,0,0,.55);}
 .cat-row{display:flex;gap:14px;align-items:center;border-bottom:1px solid #DDD;height:41px;margin-bottom:8px;padding:0 12px;}
 .cat-row-title{flex:1;min-width:0;display:flex;align-items:center;gap:8px;font-size:16px;color:rgba(0,0,0,.6);letter-spacing:-.3px;white-space:nowrap;overflow:hidden;}
 .cat-row-title .name{overflow:hidden;text-overflow:ellipsis;}
