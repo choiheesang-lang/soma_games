@@ -102,13 +102,40 @@
                  미러 래퍼(중앙축 1160/2 반사)로 반대편 배치 — 내부 지오메트리·피벗은 로컬 좌표 유지.
                  캡슐 로고: 전역 scaleX(-1) + 래퍼 flip = 이중 반전 상쇄 → 로컬 플립 불필요(정방향). -->
             <g transform="translate(1160 0) scale(-1 1)">
-            <g id="arm-front" filter="url(#armFront-shadow)">
-              <!-- 왼→오: 팔(어깨→손) → 동그란 손 → 구슬 → 엄지(공 위에서 감싸기). Figma 560-28488 비율 -->
-              <path id="hold-arm" d="M640 850 C 800 838 880 800 1049 742" stroke="#F19A2F" stroke-width="36" stroke-linecap="round" fill="none"/>
-              <circle id="hold-palm" cx="1049" cy="742" r="45" fill="#F19A2F"/>
-              <g transform="translate(1185 640)"><image id="capsule-img" href="assets/capsule2.png" x="-230" y="-230" width="460" height="460"/></g>
-              <g id="hold-thumb" filter="url(#thumb-shadow)" transform="translate(1113 693) scale(2.6) rotate(0) translate(-11.75 -15.94)">
-                <path d="M19 9.376C15.8 5.376 7 11.042 3 14.376L12 24.876C15.667 21.376 22.2 13.376 19 9.376Z" fill="#F19A2F"/>
+            <!-- 구슬손 (Figma 377-17075 / Group125). 레이어 순서 = arm → hands → bubble → thumb.
+                 스케일: 구슬 Ø128px(디자인) = 460 user units → k = 3.594 units/px.
+                 배치는 레퍼런스 렌더 실측 기준(구슬 중심 대비 손 −199.5,+161.7 / 엄지 −88,+79 units).
+                 #arm-front는 GSAP 회전 대상(motion.js 씬3 armFollow)이라 그대로 두고, 드롭섀도는 안쪽 그룹으로 내림
+                 (foreignObject가 filter 걸린 그룹 안에서 렌더 안 되는 엔진 이슈도 함께 회피). -->
+            <g id="arm-front">
+              <g id="arm-front-sh" filter="url(#armFront-shadow)">
+                <!-- 팔: 어깨(640,850) → 손(985.5,801.7) 정확한 90° 원호(R=246.7, 현 아래로 볼록).
+                     디자인 arm은 handle/radius=0.552인 사분원이고 레퍼런스 실측 sagitta/현=0.203(90°=0.207)로 일치 -->
+                <path id="hold-arm" d="M640 850 A 246.7 246.7 0 0 0 985.5 801.7" stroke="#F19A2F" stroke-width="48.5" stroke-linecap="round" fill="none"/>
+                <circle id="hold-palm" cx="985.5" cy="801.7" r="60.6" fill="#F19A2F"/>
+              </g>
+              <!-- bubble: 구슬 본체(중심 1185,640 · r230).
+                   디자인 파일의 중첩 transform(scaleY(-1) rotate(165.72))은 회전 노드의 bbox가 신뢰할 수 없고
+                   반사가 섞여 라벨이 뒤집히므로, 각 요소를 **레퍼런스 렌더 실측**으로 직접 배치했다.
+                   (실측 오차: 라벨 1.7px · light_line 2.4px @디자인 128px 기준) -->
+              <g id="marble-bubble" clip-path="url(#marble-clip)">
+                <!-- 프로스티드 글래스: backdrop-filter 길이는 user unit으로 스케일되므로
+                     디자인 16px = 16 / 0.2707 ≈ 59 units로 써야 실효 16 CSS px가 된다.
+                     이 레이어엔 빈 원만 — 라벨·하이라이트를 넣으면 컴포지팅 레이어에서 1× 래스터화돼 흐려진다. -->
+                <foreignObject x="955" y="410" width="460" height="460">
+                  <div xmlns="http://www.w3.org/1999/xhtml" class="marble-frost"></div>
+                </foreignObject>
+                <!-- 라벨: 원본 1003×636 → 337.2×213.8 units, 반사 없이 순수 회전 −29.4° -->
+                <g transform="translate(1194.7 641.4) rotate(-29.4)">
+                  <image id="marble-label" href="assets/marble-label.png" x="-168.6" y="-106.9" width="337.2" height="213.8" filter="url(#label-shadow)"/>
+                </g>
+                <circle id="marble-light" cx="1040.5" cy="582.5" r="106.9" fill="url(#marbleLight)"/>
+                <g id="marble-lightline" transform="translate(1121 531.8) rotate(-78.78) scale(4.0734) translate(-26.96 -26.96)">
+                  <path d="M50.4601 50.4601C50.4601 32.3006 40.1613 16.5465 25.0859 8.71996M3.46012 3.46012C6.66912 3.46012 9.80299 3.78172 12.8313 4.39445" stroke="white" stroke-width="6.92025" stroke-linecap="round" fill="none"/>
+                </g>
+              </g>
+              <g id="hold-thumb" filter="url(#thumb-shadow)" transform="translate(1096.9 719.1) rotate(135.72) scale(3.786 -3.786) translate(-11 -15.13)">
+                <path d="M19 9.37578C15.8 5.37578 7 11.0424 3 14.3758L12 24.876C15.6667 21.3759 22.2 13.3758 19 9.37578Z" fill="#F19A2F"/>
               </g>
             </g>
             </g>
@@ -155,11 +182,23 @@
           </g>
           <defs>
             <!-- 앞 왼팔+캡슐 그림자(루트 좌표계). 팔(615~)·볼(700~1160, y410~870) 전체 포함 -->
-            <!-- 엄지 전용 그림자: 공 위에서 잡고 있는 느낌(레퍼런스 Vector 199의 dd 필터 스케일업) -->
-            <filter id="thumb-shadow" x="-40%" y="-40%" width="200%" height="200%">
-              <feDropShadow dx="1" dy="8" stdDeviation="9" flood-color="#7A4A10" flood-opacity="0.34"/>
+            <!-- 구슬(bubble) 내부 리소스 -->
+            <clipPath id="marble-clip"><circle cx="1185" cy="640" r="230"/></clipPath>
+            <radialGradient id="marbleLight" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+                            gradientTransform="translate(1040.5 582.5) rotate(90) scale(106.9)">
+              <stop stop-color="white"/><stop offset="1" stop-color="white" stop-opacity="0"/>
+            </radialGradient>
+            <!-- 라벨 섀도(디자인 0 1.5px 3.25px #444 26% → k=3.594배) -->
+            <filter id="label-shadow" x="-25%" y="-25%" width="150%" height="160%">
+              <feDropShadow dy="5.4" stdDeviation="5.8" flood-color="#444444" flood-opacity="0.26"/>
             </filter>
-            <filter id="armFront-shadow" x="560" y="360" width="900" height="600" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <!-- 엄지 그림자: 디자인 2겹(0,0,σ0.5,21% / dx1,dy-4,σ2,20% · #444444)을 k배 -->
+            <filter id="thumb-shadow" x="-60%" y="-60%" width="240%" height="240%">
+              <feDropShadow dy="0" stdDeviation="1.8" flood-color="#444444" flood-opacity="0.21"/>
+              <feDropShadow dx="3.6" dy="-14.4" stdDeviation="7.2" flood-color="#444444" flood-opacity="0.2"/>
+            </filter>
+            <!-- 팔 섀도 영역: 새 팔은 현 아래로 72 처져 최하단 페인트 ≈922, dy12+σ13 그림자까지 ≈973 → y340 h700(=1040)로 확장 -->
+            <filter id="armFront-shadow" x="540" y="340" width="940" height="700" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
               <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
               <feOffset dy="12"/><feGaussianBlur stdDeviation="13"/>
               <feColorMatrix type="matrix" values="0 0 0 0 0.266667 0 0 0 0 0.266667 0 0 0 0 0.266667 0 0 0 0.26 0"/>

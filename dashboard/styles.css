@@ -216,6 +216,10 @@ body{font-family:var(--sans);color:var(--ink);background:#fff;-webkit-font-smoot
 .game-char{position:absolute;z-index:10;width:314px;left:48.2%;top:20.8%;
   transform:translate(-50%,-50%);}   /* 캐릭터는 원본 크기 고정(축소 안 함). 위치는 스테이지 기준 %(디자인 377-15396) */
 .game-char svg{display:block;width:100%;height:auto;overflow:visible;transform:scaleX(-1);}  /* 좌우 반전 */
+/* 구슬(bubble) 프로스티드 글래스 — SVG foreignObject 안. 디자인 377-17075: rgba(0,0,0,.08) + blur 16px.
+   foreignObject 내부 길이는 user unit(1u ≈ 0.2707 CSS px)으로 스케일되므로 16px → 59u로 지정. */
+.marble-frost{width:100%;height:100%;border-radius:50%;background:rgba(0,0,0,.08);
+  backdrop-filter:blur(59px);-webkit-backdrop-filter:blur(59px);}
 
 /* 캐릭터2(초록 삼각형) — 정적. char1 대비 오른쪽+7.4%·아래+12.6%(Figma 377-15396), 크기 1.34배(510px) */
 .game-char2{position:absolute;z-index:3;width:383px;left:74.1%;top:28.7%;
