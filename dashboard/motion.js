@@ -109,7 +109,8 @@
   // ══════════════════════════════════════════════════════════════
   const CFG = {
     // SVG 관절 기준점(1160×1014 좌표계)
-    origin:{ bodyBottom:"455 950", shoulderR:"322 669", shoulderL:"640 850" },   // shoulderL = 캡슐 든 왼팔 어깨
+    origin:{ bodyBottom:"455 950", shoulderR:"322 669", shoulderL:"640 850",     // shoulderL = 캡슐 든 왼팔 어깨
+             c2BodyBottom:"270 414" },                                           // char2 삼각 몸통 밑변 중앙(viewBox 511×435) — 임팩트 스쿼시 피벗
     peek:{   tilt:5, sway:4, swayDur:.40, anticipShift:8, anticipDur:.15 },
     flyIn:{  dur:.9,  ease:"power3.inOut", stretchX:1.15, stretchY:.88 },
     land:{   squashDur:.12, sqX:1.22, sqY:.80, overDur:.16, ovX:.95, ovY:1.06,
@@ -119,7 +120,10 @@
     play:{   ready:-10, swingDown:18, restSwing:4,   // 팔 배치 scale 2(내부 미러 제거)로 부호 원복 — 화면상 준비(위)→스윙(아래)
              riseDur:0.22, glideDur:0.85, hold:0.10, glideEase:"power3.in", squashY:0.975 },
     // char2(녹색): char1과 동일 타이밍(charTL)로 팔 스윙+손 토글. 어깨 피벗·등장 슬라이드 시작(오른쪽 밖).
-    play2:{  ready:-8, swingDown:16, restSwing:3, pivot:"154.86 269.18", slideFrom:0.35 },
+    // 부호 주의: char1은 #soma-char에 CSS scaleX(-1) 미러가 걸려 화면 방향이 반대다. char2는 미러가 없으므로
+    // 같은 부호를 쓰면 준비/스윙 방향이 뒤집힌다 → ready 양수(손 올림)·swingDown 음수(내려찍음)로 반전.
+    // 진폭도 char1과 화면 이동량이 같아지게 정규화(char1 +0.679px/° · char2 -1.417px/° 실측 → 총 13.5° ≈ 19px).
+    play2:{  ready:5, swingDown:-8.5, restSwing:-2, pivot:"154.86 269.18", slideFrom:0.35 },
   };
 
   // peek(우측 상단, 밑단만 노출) 오프셋 — 착지 홈(0,0) 대비. 실제 렌더 높이 기준.
@@ -194,7 +198,9 @@
           .to("#fingers-ppa",{ opacity:h1.ppa, duration:0.05 }, hitT)
           .to("#c2-fingers-jji",{ opacity:h2.jji, duration:0.05 }, hitT)
           .to("#c2-fingers-ppa",{ opacity:h2.ppa, duration:0.05 }, hitT)
-          .to(char,{ scaleY:P.squashY, duration:0.08, yoyo:true, repeat:1, ease:"power2.out", svgOrigin:CFG.origin.bodyBottom }, hitT);
+          .to(char,{ scaleY:P.squashY, duration:0.08, yoyo:true, repeat:1, ease:"power2.out", svgOrigin:CFG.origin.bodyBottom }, hitT)
+          // char2도 같은 임팩트 스쿼시 — 없으면 "딱" 박자감이 char1에서만 나서 동시로 안 읽힌다
+          .to("#c2-character",{ scaleY:P.squashY, duration:0.08, yoyo:true, repeat:1, ease:"power2.out", svgOrigin:CFG.origin.c2BodyBottom }, hitT);
         if(last){
           tl.to(armSwing,{ rotation:P.restSwing, duration:0.5, ease:"power2.out" }, hitT+P.hold);
           tl.to(c2arm,{ rotation:CFG.play2.restSwing, duration:0.5, ease:"power2.out" }, hitT+P.hold);
@@ -234,11 +240,13 @@
       tl.to(RC1.eye,{ scaleY:0.12, duration:.08, svgOrigin:RC1.ep, yoyo:true, repeat:1 }, L+"+=0.15");
     }
 
-    // ── 라운드1: char1 묵묵찌빠(승) / char2 묵찌빠묵(패=슬픔) ──
+    // ── 라운드1: char1 묵빠찌빠(승) / char2 묵찌빠묵(패=슬픔) ──
+    // 1비트는 둘 다 묵(구호 시작), 2~4비트는 양쪽 모두 매 비트 손이 바뀐다.
+    // 한쪽만 비트마다 바뀌면 "한 박 늦다"로 읽히기 때문. 4비트 빠(보) vs 묵(바위) → char1 승.
     gsap.set(["#fingers-jji","#fingers-ppa","#c2-fingers-jji","#c2-fingers-ppa"],{ opacity:0 }); // 둘 다 묵
     tl.addLabel("b1", ">+0.15");
     tl.addLabel("b2", tl.labels.b1+beat).addLabel("b3", tl.labels.b1+2*beat).addLabel("b4", tl.labels.b1+3*beat);
-    playBeats(tl.labels.b1, [ {jji:0,ppa:0},{jji:0,ppa:0},{jji:1,ppa:0},{jji:0,ppa:1} ],
+    playBeats(tl.labels.b1, [ {jji:0,ppa:0},{jji:0,ppa:1},{jji:1,ppa:0},{jji:0,ppa:1} ],
                             [ {jji:0,ppa:0},{jji:1,ppa:0},{jji:0,ppa:1},{jji:0,ppa:0} ]);
     frontReact({ label:"front", at:">+0.25" }, 'c2');
 
@@ -250,7 +258,7 @@
     const r2b1=tl.labels.r2+0.4;
     tl.addLabel("b5", r2b1).addLabel("b6", r2b1+beat).addLabel("b7", r2b1+2*beat).addLabel("b8", r2b1+3*beat);
     playBeats(r2b1, [ {jji:0,ppa:0},{jji:1,ppa:0},{jji:0,ppa:1},{jji:0,ppa:0} ],   // char1 묵찌빠묵
-                    [ {jji:0,ppa:0},{jji:0,ppa:0},{jji:1,ppa:0},{jji:0,ppa:1} ]);  // char2 묵묵찌빠
+                    [ {jji:0,ppa:0},{jji:0,ppa:1},{jji:1,ppa:0},{jji:0,ppa:1} ]);  // char2 묵빠찌빠 → 4비트 빠 vs 묵 = char2 승
     frontSmileBoth({ label:"front2", at:">+0.25" });   // 마지막: 둘 다 정면 보고 웃음
 
     charTL=tl; window.charTL=tl;

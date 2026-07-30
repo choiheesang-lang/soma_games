@@ -181,6 +181,8 @@
     <!-- 소마챔스 캐릭터2 (초록 삼각형) — 정적. Figma 382-19080. 위치: char1 대비 오른쪽+7.4%·아래+12.6% -->
       <div class="game-char2" id="gameChar2" aria-hidden="true">
         <svg id="soma-char2" viewBox="0 0 511 435" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- #c2-character = char1의 #character 대응 래퍼(팔+몸통+얼굴). 임팩트 스쿼시 대상 -->
+          <g id="c2-character">
           <!-- 뒤팔(몸통 뒤): 초록 팔 + 묵찌빠 손(char1 손 기하 이식·초록·scale0.75). #c2-arm-swing=어깨(154.86,269.18) 스윙 -->
           <g id="c2-arm-swing" filter="url(#c2-sh1)">
             <path d="M154.86 269.183C147.302 311.803 106.625 340.227 64.0045 332.669" stroke="#69BE00" stroke-width="18" stroke-linecap="round"/>
@@ -214,6 +216,7 @@
             <path d="M253.083 320.613C223.353 289.152 224.756 239.548 256.216 209.818" stroke="#69BE00" stroke-width="18" stroke-linecap="round"/>
             <circle cx="256.216" cy="209.818" r="22.5" transform="rotate(136.62 256.216 209.818)" fill="#69BE00"/>
           </g>
+          </g><!-- /#c2-character -->
           <defs>
             <filter id="c2-sh1" x="-40" y="230" width="280" height="220" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
               <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
