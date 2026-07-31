@@ -45,6 +45,151 @@ function curatedList(){
   return [...first,...rest];
 }
 
+// ── 설명 모드(주황 캐릭터 클릭, Figma 606-32619) 시리즈별 소개 카피 ──
+// 레이만 Figma 실카피. 나머지는 톤을 맞춘 임시 초안 — TODO: 실제 마케팅 카피로 교체
+const SERIES_DESC={
+  "레이":{ title:"수학의 첫 시작,\n재미는 기본!!\n사고력 향상의 첫걸음",
+    body:"처음으로 수학을 시작하는 레이키즈 단계는 다양한 생활 속 소재를 바탕으로 아이들의 배경지식을 넓혀주고 교구와 게임 등의 활동을 통해 수학의 흥미를 유발하여 사고력과 창의성을 키워주는 프로그램입니다." },
+  "레이플러스":{ title:"한 걸음 더 깊은\n사고력 수학,\n레이플러스", // TODO: 실제 카피로 교체
+    body:"레이 과정을 마친 아이들을 위한 심화 단계입니다. 개념을 더 다양한 상황에 적용해보며 스스로 문제를 해결하는 힘을 기릅니다." },
+  "레인보우":{ title:"교과와 사고력을\n한번에,\n레인보우", // TODO: 실제 카피로 교체
+    body:"교과 수학과 사고력 수학을 균형 있게 다루는 프로그램입니다. 다양한 유형의 문제를 통해 개념을 튼튼히 다지고 응용력을 키웁니다." },
+  "레인보우플러스":{ title:"레인보우의 확장,\n더 넓은 사고력", // TODO: 실제 카피로 교체
+    body:"레인보우 과정을 마친 아이들이 더 높은 난이도의 문제에 도전하며 사고력을 확장해가는 심화 프로그램입니다." },
+  "프리즘":{ title:"다양한 시각으로\n문제를 바라보는\n힘, 프리즘", // TODO: 실제 카피로 교체
+    body:"하나의 정답이 아니라 여러 풀이 방법을 탐구하며 창의적 사고력을 기르는 프로그램입니다. 게임과 교구로 즐겁게 배웁니다." },
+  "프리즘플러스":{ title:"프리즘 심화,\n한 단계 더 넓게", // TODO: 실제 카피로 교체
+    body:"프리즘 과정의 심화 버전으로, 더 복잡한 문제 상황 속에서 다각도로 사고하는 훈련을 합니다." },
+  "프리미어 초급":{ title:"기초를 탄탄히,\n프리미어 초급", // TODO: 실제 카피로 교체
+    body:"수학의 기본 개념을 차근차근 익히는 입문 단계 프로그램입니다. 쉬운 설명과 반복 학습으로 자신감을 키웁니다." },
+  "프리미어 중급":{ title:"실력을 한 단계\n끌어올리는,\n프리미어 중급", // TODO: 실제 카피로 교체
+    body:"기초를 다진 아이들이 응용 문제까지 폭넓게 다루며 실력을 키워가는 중급 과정입니다." },
+  "프리미어 특강":{ title:"핵심만 콕!\n프리미어 특강", // TODO: 실제 카피로 교체
+    body:"특정 단원이나 유형을 집중적으로 다루는 특강 프로그램입니다. 부족한 부분을 빠르게 보완할 수 있습니다." },
+  "소마셈":{ title:"연산이 즐거워지는\n시간, 소마셈", // TODO: 실제 카피로 교체
+    body:"매일 꾸준한 연산 학습으로 계산력과 수 감각을 길러주는 프로그램입니다. 게임처럼 즐기며 반복할 수 있습니다." },
+  "소마 스트라이크":{ title:"교과 진도를\n확실하게, 소마 스트라이크", // TODO: 실제 카피로 교체
+    body:"학기별 교과 진도에 맞춰 개념과 문제풀이를 함께 학습하는 진도북 프로그램입니다." },
+};
+
+// ── 설명 모드 부위별 확대 설정 (레퍼런스 606-32619 실측) ──
+// 비균일 확대: 몸통 5.104× · 얼굴 3.9× · 반짝이 1.86×.
+// svgOrigin = 배율의 고정점(SVG 로컬 좌표). dx/dy도 SVG 로컬 단위 —
+// 주의: #soma-char에 CSS scaleX(-1)이 걸려 있어 **양수 dx는 화면에서 왼쪽**으로 이동한다.
+// 배율·오프셋은 ?tune 설명모드 섹션에서 눈으로 맞춘 확정값
+// (레퍼런스 실측 초기값은 몸통 5.104 · 얼굴 3.9 · 반짝이 2.12/dx477.6/dy12 · 흔들기 4였음)
+const NARR={
+  body: { scale:4.061, origin:"580.6 485.37" },     // 회전 rect의 시각 중심
+  face: { scale:3.6,   origin:"401.662 702.248" },  // 두 눈 중심
+  // 이동은 #sparkle-move, 배율은 #sparkle-scale로 분리 — 한 트윈에 x/y와 svgOrigin을 섞으면 값이 누적된다
+  spark:{ scale:3.0,   origin:"45.25 45.25" },
+  sparkMove:{ dx:480.0, dy:-30 },   // #sparkle의 scale(1.7) 안쪽이라 화면에서는 1.7배로 반영됨
+  armSwing:8, armDur:1.6
+};
+let narrSaved=null, narrArmTL=null;
+
+// 진입 시 GSAP이 남긴 트랜스폼을 중립화한다. 특히 front2가 남기는 #face x=48은
+// 얼굴 배율 3.9배와 겹쳐 크게 증폭되므로 반드시 0으로 돌려야 위치가 결정적으로 잡힌다.
+function narrateFreezeGSAP(){
+  if(!window.gsap) return;
+  const get=(sel,props)=>{ const o={}; props.forEach(p=>o[p]=gsap.getProperty(sel,p)); return o; };
+  narrSaved={
+    char:  get("#gameChar",["xPercent","yPercent","x","y","rotation","scaleX","scaleY"]),
+    inner: get("#character",["scaleX","scaleY"]),
+    face:  get("#face",["x","y"]),
+    tlPaused: window.charTL? window.charTL.paused() : null
+  };
+  if(window.charTL) window.charTL.pause();
+  // gsap.set(즉시 적용)을 쓴다 — gsap.to + overwrite:true 를 쓰면 이 타깃들에 걸린
+  // **charTL 내부 트윈까지 kill** 돼서 이탈 후 인트로·묵찌빠 모션이 영구적으로 깨진다.
+  // 설명모드 동안 charTL은 pause 상태라 경쟁할 트윈이 없으므로 즉시 적용이 안전하다.
+  gsap.set("#gameChar",{xPercent:-50,yPercent:-50,x:0,y:0,rotation:0,scaleX:1,scaleY:1});
+  gsap.set("#character",{scaleX:1,scaleY:1});
+  gsap.set("#face",{x:0,y:0});
+}
+function narrateRestoreGSAP(){
+  if(!window.gsap||!narrSaved) return;
+  gsap.set("#gameChar",narrSaved.char);
+  gsap.set("#character",narrSaved.inner);
+  gsap.set("#face",narrSaved.face);
+  if(window.charTL && narrSaved.tlPaused===false) window.charTL.resume();   // 진입 전에 재생 중이었으면 이어서
+  narrSaved=null;
+}
+// 부위별 배율 적용/해제 — CSS transform이 아니라 GSAP svgOrigin을 쓴다(motion.js와 동일한 방식,
+// SVG 그룹의 transform-origin 브라우저 차이를 피하고 애니메이션도 자연스럽다)
+function narrateScale(on){
+  if(!window.gsap) return;
+  const E="back.out(1.3)", D=.55;
+  // 배율(svgOrigin 사용) — x/y는 절대 같이 넣지 않는다
+  const go=(sel,c)=>gsap.to(sel, on
+    ? {scale:c.scale, svgOrigin:c.origin, duration:D, ease:E, overwrite:true}
+    : {scale:1, svgOrigin:c.origin, duration:D, ease:"power2.inOut", overwrite:true});
+  go("#body-scale",NARR.body); go("#face-scale",NARR.face); go("#sparkle-scale",NARR.spark);
+  // 이동(순수 translate — 원점 개념이 없으니 누적되지 않는다)
+  const m=NARR.sparkMove;
+  gsap.to("#sparkle-move", on
+    ? {x:m.dx, y:m.dy, duration:D, ease:E, overwrite:true}
+    : {x:0, y:0, duration:D, ease:"power2.inOut", overwrite:true});
+}
+// 필 툴바: GNB가 사라진 자리를 채우도록 최상단으로 올린다(레퍼런스 606-32619는 y 4).
+// 위치는 initNavPill/clampPill이 인라인 style로 관리하므로(드래그 위치가 localStorage에 저장됨)
+// CSS !important로 덮지 않고 인라인 값을 저장·교체·복원한다 → 설명모드 중 드래그도 그대로 동작.
+let pillSaved=null;
+function narratePill(on){
+  const p=document.getElementById("navPill"); if(!p) return;
+  if(on){ pillSaved={left:p.style.left, top:p.style.top}; p.style.left="16px"; p.style.top="8px"; }
+  else if(pillSaved){ p.style.left=pillSaved.left; p.style.top=pillSaved.top; pillSaved=null; }
+}
+
+// 대형 팔 흔들기 — Figma 레이어명이 "왼쪽팔_회전으로 팔을 움직이는 효과"
+function narrateArmSwing(on){
+  if(narrArmTL){ narrArmTL.kill(); narrArmTL=null; }
+  const g=document.getElementById("narrateArmSwing"); if(!g) return;
+  if(!on){ if(window.gsap) gsap.set(g,{rotation:0}); return; }
+  if(!window.gsap) return;
+  gsap.set(g,{svgOrigin:"434.656 143.159"});   // 어깨(호의 시작점)를 피벗으로
+  narrArmTL=gsap.fromTo(g,{rotation:-NARR.armSwing},
+    {rotation:NARR.armSwing, duration:NARR.armDur, ease:"sine.inOut", yoyo:true, repeat:-1});
+}
+
+// ── 설명 모드 상태 머신 ──
+let narrateList=[], narrateIdx=0, narrateTimer=null;
+function narrateBookEl(id){ return document.querySelector(`#shelf .book[data-open="${id}"]`); }
+function renderNarrateCard(){
+  const v=narrateList[narrateIdx]; if(!v) return;
+  const d=SERIES_DESC[seriesKey(v)]; if(!d) return;
+  const card=document.getElementById("narrateCard");
+  document.getElementById("narrateTitle").textContent=d.title;
+  document.getElementById("narrateBody").textContent=d.body;
+  card.classList.add("on");
+  document.querySelectorAll("#shelf .book.narrate-on").forEach(b=>b.classList.remove("narrate-on"));
+  const el=narrateBookEl(v.id);
+  if(el){ el.classList.add("narrate-on"); el.scrollIntoView({inline:"center",block:"nearest",behavior:"smooth"}); }
+}
+function narrateNext(){ narrateIdx=(narrateIdx+1)%narrateList.length; renderNarrateCard(); }
+function narrateGoTo(id){
+  const i=narrateList.findIndex(v=>v.id===id); if(i<0) return;
+  narrateIdx=i; renderNarrateCard();
+  clearInterval(narrateTimer); narrateTimer=setInterval(narrateNext,6000);
+}
+function enterNarrate(){
+  if(document.getElementById("app").dataset.mode==="narrate") return;
+  narrateList=curatedList(); if(!narrateList.length) return;
+  narrateIdx=0;
+  document.getElementById("app").dataset.mode="narrate";
+  narrateFreezeGSAP(); narrateScale(true); narrateArmSwing(true); narratePill(true);
+  renderNarrateCard();
+  narrateTimer=setInterval(narrateNext,6000);
+}
+function exitNarrate(){
+  if(document.getElementById("app").dataset.mode!=="narrate") return;
+  clearInterval(narrateTimer); narrateTimer=null;
+  delete document.getElementById("app").dataset.mode;
+  narrateScale(false); narrateArmSwing(false); narratePill(false); narrateRestoreGSAP();
+  document.getElementById("narrateCard").classList.remove("on");
+  document.querySelectorAll("#shelf .book.narrate-on").forEach(b=>b.classList.remove("narrate-on"));
+}
+
 function coverInner(v){
   if(v.cover) return `<img src="${coverURL(v)}" alt="${esc(v.title)}" loading="lazy" draggable="false">`;
   const subj=SUBJ_L[v.subject]||"";
@@ -101,8 +246,13 @@ function initDropdowns(){
   });
   document.addEventListener("click",e=>{ closeAllDropdowns(); closeWhoMenu();
     // GNB·필 툴바 밖 클릭 → 즐겨찾기 패널 닫기 (툴바에 즐겨찾기 버튼이 있으므로 함께 예외)
-    if(!e.target.closest("#topbar") && !e.target.closest("#navPill")) closeFavPanel(); });
-  document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ closeAllDropdowns(); closeWhoMenu(); closeFavPanel(); closeAnySheet(); } });
+    if(!e.target.closest("#topbar") && !e.target.closest("#navPill")) closeFavPanel();
+    // 설명모드: 책·카드 클릭이 아닌 곳(캐릭터 몸통·웨이브·필 툴바 등 어디든) → 종료. 책 클릭은 shelf 핸들러가 이미 narrateGoTo로 처리.
+    if(document.getElementById("app").dataset.mode==="narrate" && !e.target.closest(".book") && !e.target.closest(".narrate-card")){
+      exitNarrate();
+    }
+  });
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ closeAllDropdowns(); closeWhoMenu(); closeFavPanel(); closeAnySheet(); exitNarrate(); } });
 }
 
 // ── 검색결과 버텀시트 (Figma 484-20580) ──
@@ -347,10 +497,20 @@ function bind(){
   shelf.addEventListener("pointercancel",endDrag);
   shelf.addEventListener("click",e=>{ if(justDragged){justDragged=false;return;}
     const b=e.target.closest("[data-open]"); if(!b) return;
+    if(document.getElementById("app").dataset.mode==="narrate"){ narrateGoTo(b.dataset.open); return; }   // 설명모드: 클릭한 책부터 설명 재시작
     const idx=[...shelf.querySelectorAll(".book")].indexOf(b);
     if(idx===1){ const v=VOLS.find(x=>x.id===b.dataset.open); saveRecent(b.dataset.open); openCatalog(v?seriesKey(v):"레이"); }   // 두 번째 표지 → 열람 기록 + 카탈로그
     else showToast("준비 중입니다");
   });
+  // 주황 캐릭터 클릭(또는 Enter/Space) → 설명 모드 진입(Figma 606-32619)
+  // 진입 클릭은 stopPropagation 필수 — 안 그러면 같은 클릭이 document 핸들러까지 버블돼 "바깥 클릭"으로 오인, 그 자리에서 즉시 종료된다.
+  // 단, 이미 설명모드일 때 캐릭터(화면 대부분을 덮은 상태)를 다시 클릭하면 그건 진짜 "바깥 클릭"이므로 그대로 버블시켜 종료되게 둔다.
+  const gameChar=document.getElementById("gameChar");
+  gameChar.addEventListener("click",e=>{
+    if(document.getElementById("app").dataset.mode==="narrate") return;
+    e.stopPropagation(); enterNarrate();
+  });
+  gameChar.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); enterNarrate(); } });
   initDropdowns();
   // ── 버텀시트 인터랙션 ──
   document.getElementById("sheetScrim").addEventListener("click", closeAnySheet);
@@ -392,7 +552,9 @@ const PILL_HOME={l:16, t:68};
 // 이동 가능 영역 = 스테이지(GNB 아래). GNB(z20) 뒤로 들어가면 보이지도 눌리지도 않아 복구 불가 → 상단을 GNB 아래로 제한
 function pillBounds(p){
   const tb=document.getElementById("topbar");
-  const m=8, gnb=(tb?tb.offsetHeight:63)+5;
+  // 설명모드에는 GNB가 없으니 최상단(8)까지 허용 — 안 그러면 clampPill()이 다시 69로 끌어내린다
+  const narr=document.getElementById("app").dataset.mode==="narrate";
+  const m=8, gnb=narr ? m : (tb?tb.offsetHeight:63)+5;
   return { minL:m, minT:gnb,
            maxL:Math.max(m, window.innerWidth-p.offsetWidth-m),
            maxT:Math.max(gnb, window.innerHeight-p.offsetHeight-m) };

@@ -94,8 +94,10 @@
       <!-- 가로 책꽂이 -->
       <div class="shelf-wrap"><div class="shelf" id="shelf"></div></div>
 
-    <!-- 게임기 캐릭터 (스테이지 안: top%가 스테이지 높이 기준 → 화면 높이가 줄어도 구성 유지. z-index로 상단바 뒤·책 위) -->
-      <div class="game-char" id="gameChar" aria-hidden="true">
+    <!-- 게임기 캐릭터 (스테이지 안: top%가 스테이지 높이 기준 → 화면 높이가 줄어도 구성 유지. z-index로 상단바 뒤·책 위)
+         .char-wrap = 위치지정 전용(left/top%). 안쪽 .game-char*는 position:0,0 + GSAP만 담당 → 설명모드 CSS 스케일과 GSAP transform이 서로 안 건드림 -->
+      <div class="char-wrap w1">
+      <div class="game-char" id="gameChar" role="button" tabindex="0" aria-label="주황 캐릭터 — 교재 소개 보기">
         <svg id="soma-char" viewBox="0 0 1160 1014" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g id="character">
             <!-- 구슬팔(맨 아래=몸 뒤, 화면 오른쪽): 캡슐(쌍기나무 탐정)을 들고 등장 (Figma 546-29574).
@@ -141,15 +143,22 @@
               </g>
             </g>
             </g>
+            <!-- #body-scale / #face-scale = 설명모드 부위별 배율 전용 래퍼.
+                 GSAP은 #character(스쿼시)·#face(정면 이동)를 건드리므로 스케일은 별도 래퍼에 걸어 분리한다.
+                 레퍼런스 606-32619는 비균일 확대: 몸통 5.104× · 얼굴 3.9× · 반짝이 1.86× -->
             <g id="body">
-              <rect id="body-back" x="53.8887" y="217" width="836" height="836" rx="227" transform="rotate(-18 53.8887 217)" fill="#F19A2F"/>
+              <g id="body-scale">
+                <rect id="body-back" x="53.8887" y="217" width="836" height="836" rx="227" transform="rotate(-18 53.8887 217)" fill="#F19A2F"/>
+              </g>
             </g>
             <g id="face">
-              <g id="eye">
-                <circle id="eye-left" cx="326.587" cy="702.248" r="32.175" fill="black" fill-opacity="0.78"/>
-                <circle id="eye-right" cx="476.737" cy="702.248" r="32.175" fill="black" fill-opacity="0.78"/>
+              <g id="face-scale">
+                <g id="eye">
+                  <circle id="eye-left" cx="326.587" cy="702.248" r="32.175" fill="black" fill-opacity="0.78"/>
+                  <circle id="eye-right" cx="476.737" cy="702.248" r="32.175" fill="black" fill-opacity="0.78"/>
+                </g>
+                <path id="mouth" d="M403.691 760.511C419.539 760.511 432.387 747.793 432.387 732.104H374.994C374.994 747.793 387.842 760.511 403.691 760.511Z" fill="black" fill-opacity="0.78"/>
               </g>
-              <path id="mouth" d="M403.691 760.511C419.539 760.511 432.387 747.793 432.387 732.104H374.994C374.994 747.793 387.842 760.511 403.691 760.511Z" fill="black" fill-opacity="0.78"/>
             </g>
             <!-- 묵찌빠 팔(맨 위=몸 앞, 화면 왼쪽). 단일 관절: #arm-swing이 어깨(로컬 25,19)에서 회전.
                  미러 래퍼로 반대편 배치. 그림자는 transform 없는 래퍼(#arm-play-shadow)에 적용. 손=묵/찌/빠 토글. -->
@@ -180,7 +189,13 @@
           </g>
           <!-- 머리 좌상단 반짝이 (svg 미러로 좌측 표시). #character 밖 = 스쿼시 영향 없음 -->
           <g id="sparkle" transform="translate(760 175) scale(1.7)">
+            <!-- 설명모드 전용 2단 래퍼. 이동(#sparkle-move)과 배율(#sparkle-scale)을 반드시 분리해야 한다 —
+                 GSAP에서 x/y와 svgOrigin을 같은 트윈에 섞으면 원점 보정이 매번 누적돼 위치가 밀린다(실측: 토글마다 +246px). -->
+            <g id="sparkle-move">
+            <g id="sparkle-scale">
             <path fill="#FFFFFF" d="M50.794 4.06721C45.449 -1.99829 35.7573 -1.15037 31.5468 5.75113L21.2336 22.6557C20.606 23.6843 19.8272 24.6125 18.9232 25.4091L4.06628 38.5011C-1.99922 43.8461 -1.1513 53.5378 5.7502 57.7484L22.6548 68.0616C23.6834 68.6891 24.6116 69.468 25.4082 70.372L38.5002 85.2289C43.8452 91.2944 53.5369 90.4464 57.7474 83.5449L68.0607 66.6404C68.6882 65.6118 69.4671 64.6836 70.371 63.887L85.2279 50.7949C91.2934 45.45 90.4455 35.7582 83.544 31.5477L66.6394 21.2345C65.6108 20.607 64.6826 19.8281 63.886 18.9241L50.794 4.06721Z"/>
+            </g>
+            </g>
           </g>
           <defs>
             <!-- 앞 왼팔+캡슐 그림자(루트 좌표계). 팔(615~)·볼(700~1160, y410~870) 전체 포함 -->
@@ -218,8 +233,10 @@
           </defs>
         </svg>
       </div>
+      </div><!-- /.char-wrap.w1 -->
 
     <!-- 소마챔스 캐릭터2 (초록 삼각형) — 정적. Figma 382-19080. 위치: char1 대비 오른쪽+7.4%·아래+12.6% -->
+      <div class="char-wrap w2">
       <div class="game-char2" id="gameChar2" aria-hidden="true">
         <svg id="soma-char2" viewBox="0 0 511 435" fill="none" xmlns="http://www.w3.org/2000/svg">
           <!-- #c2-character = char1의 #character 대응 래퍼(팔+몸통+얼굴). 임팩트 스쿼시 대상 -->
@@ -276,8 +293,10 @@
           </defs>
         </svg>
       </div>
+      </div><!-- /.char-wrap.w2 -->
 
     <!-- 소마챔스 캐릭터3 (회색+축구공) — 정적 위치, 공 통통 루프(startBallLoop). Figma 479-16836. 흰 프레임 rect 제거·id 정리 -->
+      <div class="char-wrap w3">
       <div class="game-char3" id="gameChar3" aria-hidden="true">
         <svg id="soma-char3" viewBox="0 0 328 268" fill="none" xmlns="http://www.w3.org/2000/svg">
           <!-- 우상단 팔 -->
@@ -333,6 +352,32 @@
             </filter>
           </defs>
         </svg>
+      </div>
+      </div><!-- /.char-wrap.w3 -->
+
+      <!-- 설명 모드 대형 팔 (Figma 606-32619 → Group 126). 구슬팔·묵찌빠팔은 숨고 이 팔이 등장.
+           레퍼런스가 1:1 배치(프레임 오프셋 840.47,100.21)라 캐릭터 SVG 밖 스테이지 좌표에 직접 둔다.
+           viewBox = 팔 페인트 범위(x 27.9~460.4 / y 117.4~294.5)에 여유 포함. 색 #FBA53B(몸통보다 밝음) -->
+      <div class="narrate-arm" id="narrateArm" aria-hidden="true">
+        <svg viewBox="20 110 448 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g id="narrateArmSwing" filter="url(#narrateArm-shadow)">
+            <path d="M434.656 143.159C374.566 251.3 238.189 290.253 130.048 230.164" stroke="#FBA53B" stroke-width="51.4459" stroke-linecap="round"/>
+            <circle cx="130.048" cy="230.164" r="64.3074" fill="#FBA53B"/>
+            <path d="M36.9797 252.019C47.3301 233.392 70.821 226.683 89.4481 237.033" stroke="#FBA53B" stroke-width="18.2204" stroke-linecap="round"/>
+          </g>
+          <defs>
+            <filter id="narrateArm-shadow" x="-40" y="60" width="560" height="330" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+              <feDropShadow dx="0" dy="0" stdDeviation="0.535895" flood-color="#444444" flood-opacity="0.31"/>
+              <feDropShadow dx="0" dy="12.8615" stdDeviation="13.9333" flood-color="#444444" flood-opacity="0.36"/>
+            </filter>
+          </defs>
+        </svg>
+      </div>
+
+      <!-- 설명 모드(주황 캐릭터 클릭) 롤링 설명 카드. Figma 606-32619 Frame 3468085 -->
+      <div class="narrate-card" id="narrateCard">
+        <b id="narrateTitle"></b>
+        <p id="narrateBody"></p>
       </div>
     </main>
 

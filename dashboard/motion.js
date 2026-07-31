@@ -497,6 +497,12 @@
       char.style.marginLeft=(sw/2-bx)+"px"; char.style.marginTop=(sh/2-by)+"px";
       placeRef(px);
     }
+    // 줌/센터링 해제 — 인라인으로 잡아둔 #gameChar 위치를 원래 CSS(.char-wrap 기준)로 되돌린다
+    function clearZoom(){
+      ["width","left","top","transform","marginLeft","marginTop"].forEach(k=>char.style[k]="");
+      ref.style.opacity=0; if(opaCtl) opaCtl.range.value=0;
+      if(zoomCtl){ zoomCtl.range.value=314; zoomCtl.num.textContent=314; }
+    }
     function placeRef(px){
       const u=px/1160, k=(460*u)/REF.d;                 // 구슬 지름 460 units ↔ 레퍼런스 130px
       const w=ref.naturalWidth||244, h=ref.naturalHeight||190;
@@ -506,6 +512,76 @@
       ref.style.width=(w*k)+"px"; ref.style.height=(h*k)+"px";
     }
     ref.addEventListener("load",()=>placeRef(+zoomCtl.range.value));
+
+    // ── 설명 모드(주황 캐릭터 클릭) 부위별 배율·위치 ──
+    // 레퍼런스 606-32619는 비균일 확대(몸통 5.104 · 얼굴 3.9 · 반짝이 1.86~2.12)라 부위별로 따로 조정한다.
+    box.appendChild(hr());
+    const nHead=row();
+    const nTitle=document.createElement("span"); nTitle.textContent="설명 모드"; nTitle.style.cssText="flex:1;color:#FFDE59;font-weight:bold;";
+    const nToggle=mkBtn("ON/OFF","#3a7a4a");
+    nHead.append(nTitle,nToggle); box.appendChild(nHead);
+    nToggle.addEventListener("click",()=>{
+      const on=document.getElementById("app").dataset.mode==="narrate";
+      if(on){ if(typeof exitNarrate==="function") exitNarrate(); }
+      else{
+        clearZoom();   // 구슬 튜닝용 줌/센터링이 #gameChar 인라인 위치를 잡고 있어 설명모드 배치와 충돌 → 해제
+        if(typeof enterNarrate==="function") enterNarrate();
+        setTimeout(nOut,700);
+      }
+    });
+    const nFields=document.createElement("div"); box.appendChild(nFields);
+    const rootStyle=document.documentElement.style;
+    const cssNum=v=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue(v))||0;
+    // NARR(app.js) 배율/오프셋 + CSS 변수(위치) 양쪽을 다룬다
+    const NSPEC=[
+      ["몸통 배율", 0.5, 8,   .001, ()=>NARR.body.scale,  v=>NARR.body.scale=v],
+      ["얼굴 배율", 0.5, 8,   .001, ()=>NARR.face.scale,  v=>NARR.face.scale=v],
+      ["반짝이 배율",0.3, 6,  .001, ()=>NARR.spark.scale, v=>NARR.spark.scale=v],
+      ["반짝이 dx", -900, 900, .1,  ()=>NARR.sparkMove.dx, v=>NARR.sparkMove.dx=v],
+      ["반짝이 dy", -900, 900, .1,  ()=>NARR.sparkMove.dy, v=>NARR.sparkMove.dy=v],
+      ["캐릭터 left%", 0, 100, .01, ()=>cssNum("--n-left"),   v=>rootStyle.setProperty("--n-left",v+"%")],
+      ["캐릭터 top%",  0, 100, .01, ()=>cssNum("--n-top"),    v=>rootStyle.setProperty("--n-top",v+"%")],
+      ["새팔 left%",   0, 100, .01, ()=>cssNum("--n-arm-left"),v=>rootStyle.setProperty("--n-arm-left",v+"%")],
+      ["새팔 top%",    0, 100, .01, ()=>cssNum("--n-arm-top"), v=>rootStyle.setProperty("--n-arm-top",v+"%")],
+      ["팔 흔들기°",   0, 20,  .1,  ()=>NARR.armSwing,     v=>NARR.armSwing=v],
+    ];
+    NSPEC.forEach(([label,min,max,step,get,set])=>{
+      const c=mkRange(label,min,max,step,get(),v=>{ set(v); nApply(); });
+      c.num.contentEditable="true"; c.num.style.cursor="text"; c.num.style.outline="none";
+      c.num.addEventListener("blur",()=>{ const v=parseFloat(c.num.textContent); if(!isNaN(v)){ c.range.value=v; set(v); nApply(); } });
+      c.num.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); c.num.blur(); } });
+      c.range.addEventListener("keydown",e=>{
+        if(!/^Arrow(Left|Right|Up|Down)$/.test(e.key)) return; e.preventDefault();
+        const dir=(e.key==="ArrowRight"||e.key==="ArrowUp")?1:-1, st=e.shiftKey?10:1;
+        const nv=Math.min(max,Math.max(min,(+c.range.value)+dir*st*step*10));
+        c.range.value=nv; c.num.textContent=r3(nv); set(nv); nApply();
+      });
+      nFields.appendChild(c.row);
+    });
+    function nApply(){
+      if(document.getElementById("app").dataset.mode!=="narrate") return;
+      if(typeof narrateScale==="function") narrateScale(true);
+      if(typeof narrateArmSwing==="function") narrateArmSwing(true);
+      nOut();
+    }
+    function nOut(){
+      nBox.value=
+        `/* app.js NARR */\n`+
+        `body : scale ${r3(NARR.body.scale)}  origin "${NARR.body.origin}"\n`+
+        `face : scale ${r3(NARR.face.scale)}  origin "${NARR.face.origin}"\n`+
+        `spark: scale ${r3(NARR.spark.scale)}  move dx ${r3(NARR.sparkMove.dx)} dy ${r3(NARR.sparkMove.dy)}\n`+
+        `armSwing: ${r3(NARR.armSwing)}\n`+
+        `/* styles.css :root */\n`+
+        `--n-left:${r3(cssNum("--n-left"))}%; --n-top:${r3(cssNum("--n-top"))}%;\n`+
+        `--n-arm-left:${r3(cssNum("--n-arm-left"))}%; --n-arm-top:${r3(cssNum("--n-arm-top"))}%;`;
+    }
+    const nBox=document.createElement("textarea");
+    nBox.readOnly=true; nBox.rows=7;
+    nBox.style.cssText="width:100%;box-sizing:border-box;margin-top:6px;background:#12140f;color:#8cf;border:1px solid #3a3f3a;border-radius:6px;padding:6px;font:11px/1.4 monospace;resize:vertical;";
+    box.appendChild(nBox);
+    const nCopy=mkBtn("설명모드 값 복사","#3a7a4a"); nCopy.style.marginTop="6px"; box.appendChild(nCopy);
+    nCopy.addEventListener("click",()=>{ navigator.clipboard.writeText(nBox.value).then(()=>{nCopy.textContent="복사됨";setTimeout(()=>nCopy.textContent="설명모드 값 복사",900);}); });
+    nOut();
 
     // 출력
     box.appendChild(hr());
@@ -556,6 +632,8 @@
     fy.addEventListener("change",()=>{ V.thumb.flipY=fy.checked; refresh(); });
     sel.addEventListener("change",()=>{ target=sel.value; build(); });
 
+    // 패널 클릭이 document까지 버블되면 앱 상태(설명모드 바깥클릭 종료 등)를 건드린다 → 차단
+    box.addEventListener("click",e=>e.stopPropagation());
     document.body.appendChild(box);
     build(); refresh(); applyZoom(314);
   }
