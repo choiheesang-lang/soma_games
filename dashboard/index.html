@@ -98,7 +98,10 @@
          .char-wrap = 위치지정 전용(left/top%). 안쪽 .game-char*는 position:0,0 + GSAP만 담당 → 설명모드 CSS 스케일과 GSAP transform이 서로 안 건드림 -->
       <div class="char-wrap w1">
       <div class="game-char" id="gameChar" role="button" tabindex="0" aria-label="주황 캐릭터 — 교재 소개 보기">
-        <svg id="soma-char" viewBox="0 0 1160 1014" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- width/height 명시 필수: viewBox만 있으면 구형 Chromium/WebView가 height:auto를 종횡비가 아니라
+             replaced element 기본값 150px로 잡는다. 그러면 GSAP yPercent:-50이 offsetHeight/2로 잘못 풀려
+             캐릭터가 88px 아래에 놓인다(전자칠판 녹색 캐릭터 낙차 버그). -->
+        <svg id="soma-char" width="1160" height="1014" viewBox="0 0 1160 1014" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g id="character">
             <!-- 구슬팔(맨 아래=몸 뒤, 화면 오른쪽): 캡슐(쌍기나무 탐정)을 들고 등장 (Figma 546-29574).
                  미러 래퍼(중앙축 1160/2 반사)로 반대편 배치 — 내부 지오메트리·피벗은 로컬 좌표 유지.
@@ -238,7 +241,7 @@
     <!-- 소마챔스 캐릭터2 (초록 삼각형) — 정적. Figma 382-19080. 위치: char1 대비 오른쪽+7.4%·아래+12.6% -->
       <div class="char-wrap w2">
       <div class="game-char2" id="gameChar2" aria-hidden="true">
-        <svg id="soma-char2" viewBox="0 0 511 435" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg id="soma-char2" width="511" height="435" viewBox="0 0 511 435" fill="none" xmlns="http://www.w3.org/2000/svg">
           <!-- #c2-character = char1의 #character 대응 래퍼(팔+몸통+얼굴). 임팩트 스쿼시 대상 -->
           <g id="c2-character">
           <!-- 뒤팔(몸통 뒤): 초록 팔 + 묵찌빠 손(char1 손 기하 이식·초록·scale0.75). #c2-arm-swing=어깨(154.86,269.18) 스윙 -->
@@ -298,7 +301,7 @@
     <!-- 소마챔스 캐릭터3 (회색+축구공) — 정적 위치, 공 통통 루프(startBallLoop). Figma 479-16836. 흰 프레임 rect 제거·id 정리 -->
       <div class="char-wrap w3">
       <div class="game-char3" id="gameChar3" aria-hidden="true">
-        <svg id="soma-char3" viewBox="0 0 328 268" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg id="soma-char3" width="328" height="268" viewBox="0 0 328 268" fill="none" xmlns="http://www.w3.org/2000/svg">
           <!-- 우상단 팔 -->
           <g filter="url(#c3-sh1)">
             <path d="M246.835 148.967C279.282 147.904 304.724 120.74 303.662 88.2936" stroke="#999999" stroke-width="13.5" stroke-linecap="round"/>

@@ -149,6 +149,15 @@
     gsap.set(c2arm,{ svgOrigin:CFG.play2.pivot });
     gsap.set(["#c2-fingers-jji","#c2-fingers-ppa"],{ opacity:0 });
 
+    // ── 위치 재확정 ──
+    // xPercent/yPercent는 GSAP이 렌더 시점의 offsetWidth/Height 기준으로 푼다.
+    // 높이가 늦게 확정되는 환경(폰트·fetch 후 리플로우, dvh 2단계 확정 등)에서도
+    // 어긋난 채 남지 않도록 레이아웃이 진정되는 시점마다 percent를 다시 쓴다.
+    const reseat=()=>gsap.set([c,c2,"#gameChar3"],{ xPercent:-50, yPercent:-50 });
+    addEventListener("load", reseat, {once:true});
+    addEventListener("resize", reseat);
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(reseat).catch(()=>{});
+
     if(RM){ gsap.set(c,{xPercent:-50,yPercent:-50,x:0,y:0,rotation:0}); gsap.set(c2,{x:0}); return; }
 
     gsap.set(c2,{ x: innerWidth*CFG.play2.slideFrom });          // char2 오른쪽 밖에서 시작(등장 슬라이드)

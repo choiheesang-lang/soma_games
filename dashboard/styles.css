@@ -224,7 +224,9 @@ body{font-family:var(--sans);color:var(--ink);background:#fff;-webkit-font-smoot
 .char-wrap.w3{z-index:2; left:80.7%;top:13.4%;}
 
 /* 착지 홈 = 스테이지 좌상단. 비행/스쿼시는 GSAP가 transform으로 제어. */
-.game-char{position:absolute;left:0;top:0;width:314px;
+/* aspect-ratio 명시 = 높이 이중 안전장치(Chrome 88+). GSAP yPercent:-50이 offsetHeight로 풀리므로
+   높이가 엔진 구현·레이아웃 타이밍에 따라 흔들리면 캐릭터 위치가 어긋난다. */
+.game-char{position:absolute;left:0;top:0;width:314px;aspect-ratio:1160/1014;
   transform:translate(-50%,-50%);}   /* 캐릭터는 원본 크기 고정(축소 안 함) */
 .game-char svg{display:block;width:100%;height:auto;overflow:visible;transform:scaleX(-1);}  /* 좌우 반전 */
 /* 구슬(bubble) 프로스티드 글래스 — SVG foreignObject 안. 디자인 377-17075: rgba(0,0,0,.08) + blur 16px.
@@ -233,12 +235,12 @@ body{font-family:var(--sans);color:var(--ink);background:#fff;-webkit-font-smoot
   backdrop-filter:blur(59px);-webkit-backdrop-filter:blur(59px);}
 
 /* 캐릭터2(초록 삼각형) — 정적. char1 대비 오른쪽+7.4%·아래+12.6%(Figma 377-15396), 크기 1.34배(510px) */
-.game-char2{position:absolute;left:0;top:0;width:383px;
+.game-char2{position:absolute;left:0;top:0;width:383px;aspect-ratio:511/435;
   transform:translate(-50%,-50%);}   /* 책(shelf-wrap z4)보다 뒤 */
 .game-char2 svg{display:block;width:100%;height:auto;overflow:visible;}
 
 /* 캐릭터3(회색+축구공) — 정적. 구성 377-15396 기준(공이 GNB 카드 아래 보이게 top 소폭 하향). char2·책 뒤 */
-.game-char3{position:absolute;left:0;top:0;width:328px;
+.game-char3{position:absolute;left:0;top:0;width:328px;aspect-ratio:328/268;
   transform:translate(-50%,-50%);}
 .game-char3 svg{display:block;width:100%;height:auto;overflow:visible;}
 
